@@ -5,12 +5,14 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "run": "run.js"
+    "vogue": "run.js"
   },
   "scripts": {
-    "c": "nearleyc"
+    "c": "nearleyc",
+    "test": "vogue test"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "moo": "^0.5.1",
     "nearley": "^2.20.1",
     "nedb": "^1.8.0",

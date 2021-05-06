@@ -3,6 +3,7 @@
 PROGRAM -> _ STATEMENT:+ _ {% ([,stuff,]) => { return stuff } %}
 STATEMENT -> _ LINK_DECLARATION _ %SEMICOLON:? {% ([,stuff]) => { return stuff } %}
 	| _ %RESTORE _ JS_BLOCK _ %SEMICOLON:? {% ([,,,block]) => { return { type: 'restore', block: block } } %}
+	| _ IDENTIFIER _ JS_BLOCK _ %SEMICOLON:? {% ([,name,,block]) => { return { type: 'function', name: name, block: block } } %}
 	| _ %NAMESPACE __ NAMESPACE _ %SEMICOLON:? {% ([,,,namespace]) => { return { type: 'namespace', namespace: namespace[0] } } %}
 LINK_DECLARATION -> _ %LINK __ IDENTIFIER {% ([,,,id]) => {return{ type: 'link', array: false, required: false, name: id }} %}
                   | _ %LINK _ %ARRAY __ IDENTIFIER {% ([,,,,,id]) => {return{ type: 'link', array: true, required: false, name: id }} %}

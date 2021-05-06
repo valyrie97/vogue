@@ -15,7 +15,6 @@ export default class Instance extends Serializable {
 		}
 		// ctx.Instance = Instance;
 		ctx.create = this.system.newInstance.bind(this.system);
-		console.log('context reconstructed', ctx);
 		return ctx;
 	};
 
@@ -28,7 +27,6 @@ export default class Instance extends Serializable {
 	}
 
 	invokeInternal(name, ...args) {
-		console.trace();
 		const content = this.module.functions[name];
 		evalInContext(content, this.context);
 	}
@@ -44,7 +42,6 @@ function evalInContext(js, context) {
 		`).join('\n')}
 		${js}`;
 		const newJs = minify(preminJs);
-		console.log(`${'='.repeat(80)}\n${newJs}\n${'='.repeat(80)}`)
 		return eval(newJs);
 	}.call(context);
 }

@@ -1,16 +1,20 @@
+namespace xyz.places;
 
 link[] places;
 link place;
 link character;
 
 restore [[
-	if(places.empty()) {
+	if(places.empty) {
 		for(let i = 0; i < 3; i ++) {
-			const place = create('places.forest', {
+			const place = create('xyz.places.places.forest', {
 				world: this
 			});
 			places.push(place);
 		}
 	}
-	console.log(places);
+
+	for(const place of places) {
+		place.ping();
+	}
 ]]

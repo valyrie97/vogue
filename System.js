@@ -1,5 +1,8 @@
 import Instance from './Instance.js';
 import Serializable from './Serializable.js';
+import _ from 'lodash';
+
+const {get, set} = _;
 
 export default class System extends Serializable {
 	instances = [];
@@ -11,11 +14,15 @@ export default class System extends Serializable {
 		try {
 			mkdirSync(location);
 		} catch {}
-		this.newInstance('world');
+		this.newInstance('xyz.places.world');
+	}
+
+	getModule(name) {
+		return get(this.modules, name);
 	}
 
 	createInstance(name, args = {}) {
-		return new Instance(this.modules[name], null, args, this);
+		return new Instance(this.getModule(name), null, args, this);
 	}
 
 	linkInstance(instance) {
