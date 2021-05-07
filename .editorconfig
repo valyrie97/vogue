@@ -1,0 +1,6 @@
+[*]
+indent_style = tab
+indent_size = 2
+
+[*.ne]
+indent_style = spaces

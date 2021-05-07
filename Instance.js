@@ -6,16 +6,20 @@ export default class Instance extends Serializable {
 	module = null;
 	links = {}
 	system = null;
+	context = null;
 
 	// reconstruct context when we need it...
-	get context() {
+	createContext() {
 		const ctx = {};
 		for(const name in this.links) {
 			ctx[name] = this.links[name];
 		}
+		for(const name in this.module.imports) {
+			ctx[name] = this.module.imports[name];
+		}
 		// ctx.Instance = Instance;
 		ctx.create = this.system.newInstance.bind(this.system);
-		return ctx;
+		this.context = ctx;
 	};
 
 	constructor(module, location, parameters, system) {
@@ -24,11 +28,26 @@ export default class Instance extends Serializable {
 		this.location = location;
 		this.system = system;
 		for(const name of this.module.links.optional.arrays) this.links[name] = [];
+		this.createContext();
+
+		this._link = new Proxy(this, {
+			get(target, prop, receiver) {
+				if(prop === 'restore') return undefined;
+				if(prop in target.module.functions) {
+					return target.invokeInternal.bind(target, prop);
+				}
+				return undefined;
+			}
+		});
 	}
 
 	invokeInternal(name, ...args) {
 		const content = this.module.functions[name];
 		evalInContext(content, this.context);
+	}
+
+	get link () {
+		return this._link;
 	}
 }
 

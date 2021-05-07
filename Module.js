@@ -18,5 +18,6 @@ export default class Module {
 		space: '',
 		last: '',
 		full: ''
-	}
+	};
+	imports = {}
 }

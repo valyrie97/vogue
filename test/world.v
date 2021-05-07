@@ -4,7 +4,7 @@ link[] places;
 link place;
 link character;
 
-restore [[
+restore {
 	if(places.empty) {
 		for(let i = 0; i < 3; i ++) {
 			const place = create('xyz.places.places.forest', {
@@ -17,4 +17,4 @@ restore [[
 	for(const place of places) {
 		place.ping();
 	}
-]]
+}

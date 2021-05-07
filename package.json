@@ -1,5 +1,5 @@
 {
-  "name": "lang",
+  "name": "vogue",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -9,13 +9,14 @@
   },
   "scripts": {
     "c": "nearleyc",
-    "test": "vogue test"
+    "test": "node run.js test"
   },
   "dependencies": {
     "lodash": "^4.17.21",
     "moo": "^0.5.1",
     "nearley": "^2.20.1",
     "nedb": "^1.8.0",
+    "terminal-kit": "^2.1.0",
     "uglify-js": "^3.13.5"
   }
 }

@@ -14,7 +14,7 @@ export default class System extends Serializable {
 		try {
 			mkdirSync(location);
 		} catch {}
-		this.newInstance('xyz.places.world');
+		this.newInstance('xyz.places.main');
 	}
 
 	getModule(name) {
@@ -25,17 +25,9 @@ export default class System extends Serializable {
 		return new Instance(this.getModule(name), null, args, this);
 	}
 
-	linkInstance(instance) {
-		return new Proxy(instance, {
-			get(target, prop, receiver) {
-				return target[prop];
-			}
-		});
-	}
-
 	newInstance(name, args = {}) {
 		const instance = this.createInstance(name, args);
-		const link = this.linkInstance(instance);
+		const link = instance.link;
 		instance.invokeInternal('restore');
 		return link;
 	}
