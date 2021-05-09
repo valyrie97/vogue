@@ -42,13 +42,13 @@ singleton;
 functions can be referred to in other functions with or without the `this.` prefix. Use the prefix to disambiguate if local variables exist with the same identifier. 
 
 ```vogue
-functionName (param1, param2) [[
+functionName (param1, param2) {
 	// javacsript code
-]]
+}
 
-functionName [[
+anotherFunction {
 	// javascript code
-]]
+}
 ```
 
 ## Restore

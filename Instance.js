@@ -19,11 +19,12 @@ export default class Instance extends Serializable {
 			ctx[name] = this.module.imports[name];
 			this.locals.push(name);
 		}
-		// ctx.Instance = Instance;
 		ctx.create = this.system.newInstance.bind(this.system);
 		this.locals.push('create');
 		this.context = ctx;
 	};
+
+	ready = false;
 
 	constructor(module, location, parameters, system) {
 		super();
@@ -46,8 +47,10 @@ export default class Instance extends Serializable {
 	}
 
 	invokeInternal(name, ...args) {
+		// console.log('invoking', name);
 		const content = this.module.functions[name];
-		evalInContext(content, this.context, this.locals);
+		if(!content) throw new TypeError(content + ' is not a function!');
+		return evalInContext(content, this.context, this.locals);
 	}
 
 	get link () {
@@ -55,16 +58,24 @@ export default class Instance extends Serializable {
 	}
 }
 
+minify()
+
 function evalInContext(js, context, locals) {
 	//# Return the results of the in-line anonymous function we .call with the passed context
 	const that = this;
 	return function() {
 		const preminJs = `
+		'use strict';
+		(() => {
 		${locals.map((k) => `
 		const ${k} = this.${k};
 		`).join('\n')}
-		${js}`;
+		${js};
+		})();`;
 		const newJs = minify(preminJs);
-		return eval(newJs);
+		// newJs should inject into result...
+		let result;
+		eval(newJs);
+		return result;
 	}.call(context);
 }

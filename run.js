@@ -36,7 +36,6 @@ function createParser() {
 
 	const lexer = moo.compile({
 		LINK: 'link',
-		RESTORE: 'restore',
 		NAMESPACE: 'namespace',
 		REQUIRED: 'required',
 		SINGLETON: 'singleton',
@@ -100,8 +99,6 @@ const entry = process.argv[3];
 			set(acc, val.name.full, val);
 			return acc;
 		}, {});
-
-	console.log(modules)
 	
 	const sys = new System(modules);
 })()
@@ -158,14 +155,11 @@ async function parseModule(location) {
 				else module.imports[item.name] = imported;
 
 			} else if (item.type === 'variable') {
-				
+				module.variables[item.persist ? 'cold' : 'warm'].push(item.name);
 			}
 		}
 	} catch (e) {
 		console.error(e);
-		if (debug) {
-			console.log(JSON.stringify(parsed, null, 2));
-		}
 	}
 
 	return module;

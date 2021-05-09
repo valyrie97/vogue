@@ -5,7 +5,7 @@ link character;
 restore {
 	if(this.places.empty) {
 		for(let i = 0; i < 3; i ++) {
-			const place = create('xyz.places.places.forest', {
+			const place = create('places.forest', {
 				world: this
 			});
 			this.places.push(place);
@@ -13,6 +13,6 @@ restore {
 	}
 
 	for(const place of this.places) {
-		place.ping();
+		console.log(place.ping());
 	}
 }

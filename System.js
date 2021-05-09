@@ -14,7 +14,7 @@ export default class System extends Serializable {
 		try {
 			mkdirSync(location);
 		} catch {}
-		this.newInstance('xyz.places.main');
+		this.newInstance('main');
 	}
 
 	getModule(name) {

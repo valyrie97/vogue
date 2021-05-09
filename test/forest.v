@@ -10,5 +10,5 @@ restore {
 }
 
 ping {
-	console.log('Ping!', new Date().getTime());
+	return new Date().getTime();
 }
