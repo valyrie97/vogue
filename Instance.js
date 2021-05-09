@@ -7,6 +7,7 @@ export default class Instance extends Serializable {
 	links = {}
 	system = null;
 	context = null;
+	locals = [];
 
 	// reconstruct context when we need it...
 	createContext() {
@@ -16,9 +17,11 @@ export default class Instance extends Serializable {
 		}
 		for(const name in this.module.imports) {
 			ctx[name] = this.module.imports[name];
+			this.locals.push(name);
 		}
 		// ctx.Instance = Instance;
 		ctx.create = this.system.newInstance.bind(this.system);
+		this.locals.push('create');
 		this.context = ctx;
 	};
 
@@ -28,6 +31,7 @@ export default class Instance extends Serializable {
 		this.location = location;
 		this.system = system;
 		for(const name of this.module.links.optional.arrays) this.links[name] = [];
+		for(const name of this.module.links.optional.single) this.links[name] = null;
 		this.createContext();
 
 		this._link = new Proxy(this, {
@@ -43,7 +47,7 @@ export default class Instance extends Serializable {
 
 	invokeInternal(name, ...args) {
 		const content = this.module.functions[name];
-		evalInContext(content, this.context);
+		evalInContext(content, this.context, this.locals);
 	}
 
 	get link () {
@@ -51,12 +55,12 @@ export default class Instance extends Serializable {
 	}
 }
 
-function evalInContext(js, context) {
+function evalInContext(js, context, locals) {
 	//# Return the results of the in-line anonymous function we .call with the passed context
 	const that = this;
 	return function() {
 		const preminJs = `
-		${Object.entries(context).map(([k, v]) => `
+		${locals.map((k) => `
 		const ${k} = this.${k};
 		`).join('\n')}
 		${js}`;

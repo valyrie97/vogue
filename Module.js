@@ -19,5 +19,9 @@ export default class Module {
 		last: '',
 		full: ''
 	};
-	imports = {}
+	imports = {};
+	variables = {
+		cold: [],
+		warm: []
+	}
 }
