@@ -19,10 +19,13 @@ DIRECTIVE_STATEMENT -> DIRECTIVE __ OPEN_PARAMETERS EOL {% ([,directive,,paramet
 DIRECTIVE -> %SINGLETON {% () => 'singleton' %}
            | %KEEPALIVE {% () => 'keepalive' %}
 
-LINK_DECLARATION -> _ %LINK __ IDENTIFIER {% ([,,,id]) => { return { type: 'link', array: false, required: false, name: id }} %}
-                  | _ %LINK _ %ARRAY __ IDENTIFIER {% ([,,,,,id]) => { return { type: 'link', array: true, required: false, name: id }} %}
-                  | _ %REQUIRED __ %LINK __ IDENTIFIER {% ([,,,,,id]) => { return { type: 'link', array: false, required: true, name: id }} %}
-                  | _ %REQUIRED __ %LINK _ %ARRAY __ IDENTIFIER {% ([,,,,,,,id]) => { return { type: 'link', array: true, required: true, name: id }} %}
+LINK_DECLARATION -> LINK __ IDENTIFIER {% ([,,id]) => { return { type: 'link', array: false, required: false, name: id }} %}
+                  | LINK_ARR __ IDENTIFIER {% ([,,id]) => { return { type: 'link', array: true, required: false, name: id }} %}
+                  | %REQUIRED __ LINK __ IDENTIFIER {% ([,,,,id]) => { return { type: 'link', array: false, required: true, name: id }} %}
+                  | %REQUIRED __ LINK_ARR __ IDENTIFIER {% ([,,,,id]) => { return { type: 'link', array: true, required: true, name: id }} %}
+
+LINK -> %LINK
+LINK_ARR -> %LINK %LSQBRACKET %RSQBRACKET
 
 NAMESPACE -> IDENTIFIER
            | IDENTIFIER %DOTOP NAMESPACE {% ([a,,b]) => { return [`${a}.${b}`] } %}

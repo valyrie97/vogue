@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import debug from 'debug';
 import { resolve, parse } from 'path';
 import { readFileSync, readdirSync } from 'fs';
 import nearley from 'nearley';
@@ -12,10 +13,16 @@ import _ from 'lodash';
 const { get, set } = _;
 import Module from './Module.js';
 import System from './System.js';
-const debug = true;
+import tokens from './tokens.js';
 
 // globals inside grammar context
 import minify from './minify.js';
+
+const log = {
+	ast: debug('vogue:ast'),
+	modules: debug('vogue:modules'),
+	debug: debug('vogue:debug'),
+}
 
 Object.defineProperty(Array.prototype, 'empty', {
 	get() {
@@ -34,30 +41,7 @@ function createParser() {
 	// Generate JavaScript code from the rules
 	const grammarJs = generate(grammarInfoObject, "grammar");
 
-	const lexer = moo.compile({
-		LINK: 'link',
-		NAMESPACE: 'namespace',
-		REQUIRED: 'required',
-		SINGLETON: 'singleton',
-		KEEPALIVE: 'keepalive',
-		STATIC: 'static',
-		MEMBER: 'member',
-		RUNTIME: 'runtime',
-		IMPORT: 'import',
-		ASYNC: 'async',
-		AS: 'as',
-		STRING: /'(?:\\['\\]|[^\n'\\])*'/,
-		ARRAY: '[]',
-		OBJECT: '{}',
-		LPAREN: '(',
-		RPAREN: ')',
-		DOTOP: '.',
-		JS_BLOCK: /\[\[[^]*?\n\]\]$/,
-		JS_BLOCK2: /{[^]*?\n}$/,
-		IDENTIFIER: /[a-zA-Z][a-zA-Z0-9]*/,
-		SPACE: { match: /\s+/, lineBreaks: true },
-		SEMICOLON: ';'
-	});
+	const lexer = moo.compile(tokens);
 
 	// lexer.__proto__.formatError = function(token, message) {
 	// 	if (token == null) {
@@ -125,9 +109,9 @@ async function parseModule(location) {
 	parser.finish();
 	const parsed = parser.results[0];
 
-	console.log('='.repeat(80));
-	console.log(location);
-	console.log(parsed);
+	log.ast('='.repeat(80));
+	log.ast(location);
+	log.ast(parsed);
 
 	module.name.last = name;
 	module.name.full = name;
