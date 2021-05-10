@@ -3,10 +3,17 @@ namespace places;
 required link world;
 link[] roads;
 
-member fertility;
+member nitrogen;
 
 restore {
-	this.fertility ??= Math.floor(Math.random() * 100);
+	this.nitrogen ??= Math.floor(Math.random() * 50);
+}
+
+takeNitrogen (requested) {
+	// give as much nutrients as we can!
+	const given = Math.max(this.nitrogen, requested);
+	this.nitrogen -= given;
+	return given;
 }
 
 ping {
