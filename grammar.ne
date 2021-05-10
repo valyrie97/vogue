@@ -11,7 +11,7 @@ STATEMENT -> _ LINK_DECLARATION EOL {% ([,stuff]) => { return stuff } %}
            | _ %MEMBER __ IDENTIFIER EOL {% ([,,,identifier]) => {return{ type: 'variable', persist: true, name: identifier }} %}
 
 FUNCTION_DECLARATION -> _ IDENTIFIER _ PARAMETERS:? _ JS_BLOCK EOL {% ([,name,,params,,block]) => { return { type: 'function', name: name, block, parameters: params } } %}
-                      | _ %ASYNC __ IDENTIFIER _ PARAMETERS:? _ JS_BLOCK_ASYNC EOL {% ([,name,,params,,block]) => { return { type: 'function', name: name, block, parameters: params } } %}
+                      | _ %ASYNC __ IDENTIFIER _ PARAMETERS:? _ JS_BLOCK_ASYNC EOL {% ([,,,name,,params,,block]) => { return { type: 'function', name: name, block, parameters: params } } %}
 
 DIRECTIVE_STATEMENT -> DIRECTIVE __ OPEN_PARAMETERS EOL {% ([,directive,,parameters]) => { return { type: 'directive', value: directive, parameters }} %}
                      | DIRECTIVE EOL {% ([directive,,]) => { return { type: 'directive', value: directive }} %}
