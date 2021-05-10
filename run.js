@@ -44,10 +44,13 @@ function createParser() {
 		MEMBER: 'member',
 		RUNTIME: 'runtime',
 		IMPORT: 'import',
+		ASYNC: 'async',
 		AS: 'as',
 		STRING: /'(?:\\['\\]|[^\n'\\])*'/,
 		ARRAY: '[]',
 		OBJECT: '{}',
+		LPAREN: '(',
+		RPAREN: ')',
 		DOTOP: '.',
 		JS_BLOCK: /\[\[[^]*?\n\]\]$/,
 		JS_BLOCK2: /{[^]*?\n}$/,
@@ -121,6 +124,10 @@ async function parseModule(location) {
 	parser.feed(contents);
 	parser.finish();
 	const parsed = parser.results[0];
+
+	console.log('='.repeat(80));
+	console.log(location);
+	console.log(parsed);
 
 	module.name.last = name;
 	module.name.full = name;

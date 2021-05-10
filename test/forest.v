@@ -9,7 +9,7 @@ restore {
 	this.nitrogen ??= Math.floor(Math.random() * 50);
 }
 
-takeNitrogen (requested) {
+async takeNitrogen (requested) {
 	// give as much nutrients as we can!
 	const given = Math.max(this.nitrogen, requested);
 	this.nitrogen -= given;
