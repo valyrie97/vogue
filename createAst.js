@@ -5,6 +5,8 @@ import nearleyGrammar from 'nearley/lib/nearley-language-bootstrapped.js';
 import moo from 'moo';
 import tokens from './tokens.js';
 import { readFileSync } from 'fs';
+import debug from 'debug';
+const log = debug('vogue:ast');
 import minify from './minify.js';
 const grammarFile = 'grammar.ne';
 
@@ -54,7 +56,6 @@ export default function createAst(location) {
 	const parser = createParser();
 	const contents = readFileSync(location).toString();
 
-	
 	// parser.reportError = function(token) {
 	// 	return JSON.stringify(token, null, 2);
 	//   var message = this.lexer.formatError(token, 'invalid syntax') + '\n';
@@ -64,8 +65,14 @@ export default function createAst(location) {
 	//   return message;
 	// };
 
-
 	parser.feed(contents);
 	parser.finish();
-	return parser.results[0];
+
+	const ast = parser.results[0];
+
+	log('='.repeat(80));
+	log(location);
+	log(ast);
+
+	return ast;
 }

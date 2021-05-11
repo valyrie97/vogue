@@ -1,4 +1,7 @@
-
+import createAst from './createAst.js'
+import path from 'path';
+import debug from 'debug';
+const log = debug('vogue:module');
 
 export default class Module {
 	links = {
@@ -24,65 +27,65 @@ export default class Module {
 		cold: [],
 		warm: []
 	}
+	singleton = false;
+	keepalive = false;
 
-	async link() {
-		
+	async directive({value}) {
+		this[value] = true;
+	}
+
+	async link({required, array, name}) {
+		this.links
+			[required ? 'required' : 'optional']
+			[array ? 'arrays' : 'single']
+			.push(name);
+	}
+
+	async namespace({namespace}) {
+		this.name.space = namespace;
+		this.name.full = this.name.space + '.' + this.name.last;
+	}
+
+	async function({name, block}) {
+		this.functions[name] = block;
+	}
+
+	async import({importName, name}) {
+		const imported = await import(importName);
+		if('default' in imported) this.imports[name] = imported.default;
+		else this.imports[name] = imported;
+	}
+
+	async variable({persist, name}) {
+		this.variables[persist ? 'cold' : 'warm'].push(name);
 	}
 
 	static async create(location) {
 		const module = new Module();
 		const ast = createAst(location);
-		const name = parse(location).name;
+		const name = path.parse(location).name;
 
 		module.name.last = name;
 		module.name.full = name;
 
-		log.ast('='.repeat(80));
-		log.ast(location);
-		log.ast(ast);
-
-		try {
-
-			// move module whole loop ass bitch into module.
-			for (const item of ast) {
-				if ('name' in item && item.name in module.identifiers)
+		// move module whole loop ass bitch into module.
+		for (const item of ast) {
+			if ('name' in item) {
+				if(item.name in module.identifiers)
 					throw new Error('Identifier ' + item.name + ' already declared!');
-					
-				module.identifiers[item.name] = item.type;
-
-				if(item.type in module) {
-					await module[item.type](item);
-				}
-
-				if (item.type === 'link') {
-					module.links
-						[item.required ? 'required' : 'optional']
-						[item.array ? 'arrays' : 'single']
-						.push(item.name);
-
-				} else if (item.type === 'namespace') {
-					module.name.space = item.namespace;
-					module.name.full = module.name.space + '.' + module.name.last;
-
-				} else if (item.type === 'restore') {
-					module.functions.restore = item.block;
-
-				} else if (item.type === 'function') {
-					module.functions[item.name] = item.block;
-
-				} else if (item.type === 'import') {
-					const imported = await import(item.importName);
-					if('default' in imported) module.imports[item.name] = imported.default;
-					else module.imports[item.name] = imported;
-
-				} else if (item.type === 'variable') {
-					module.variables[item.persist ? 'cold' : 'warm'].push(item.name);
-				}
+				else module.identifiers[item.name] = item.type;
 			}
-		} catch (e) {
-			console.error(e);
+
+			if(item.type in module) {
+				await module[item.type](item);
+			}
 		}
 
+		log('='.repeat(80));
+		log(location);
+		log(module);
+
+		return module;
 	}
 }
 

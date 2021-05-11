@@ -1,39 +1,39 @@
 #!/usr/bin/env node
 
-import { resolve, parse } from 'path';
+import { resolve } from 'path';
 import { readdirSync } from 'fs';
 
 import _ from 'lodash';
-const { get, set } = _;
 import Module from './Module.js';
 import System from './System.js';
-import * as log from './debug.js';
-import createAst from './createAst.js';
-
+import debug from 'debug';
+import './extensions.js';
 // globals inside grammar context
 import minify from './minify.js';
 
-Object.defineProperty(Array.prototype, 'empty', {
-	get() {
-		return this.length === 0;
-	}
-});
-
-
+const { get, set } = _;
+const log = debug('vogue:cli');
 const systemLocation = resolve(process.argv[2]);
-const entry = process.argv[3];
 
 (async () => {
 	// TODO simplify this line gaddam
-	const modules = 
-		(await Promise.all(
-			readdirSync(systemLocation)
-			.map(v => resolve(systemLocation, v))
-			.map(loc => new Module(loc))
-		)).reduce((acc, val) => {
-			set(acc, val.name.full, val);
-			return acc;
-		}, {});
+	log('reading', systemLocation, '...');
+	const files = readdirSync(systemLocation);
+	const fullpaths = files.map(v => resolve(systemLocation, v));
+	for(const path of fullpaths) log(path);
+	log('parsing modules...');
+	const modules = await Promise.all(fullpaths.map(loc => Module.create(loc)));
+
+	// const modules = 
+	// 	(await Promise.all(
+	// 		readdirSync(systemLocation)
+	// 		.map(v => resolve(systemLocation, v))
+	// 		.map(v => { log(v); return v; })
+	// 		.map(loc => Module.create(loc))
+	// 	)).reduce((acc, val) => {
+	// 		set(acc, val.name.full, val);
+	// 		return acc;
+	// 	}, {});
 	
 	const sys = new System(modules);
 })()
