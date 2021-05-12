@@ -13,11 +13,12 @@ STATEMENT -> _ LINK_DECLARATION EOL {% ([,stuff]) => { return stuff } %}
 FUNCTION_DECLARATION -> _ IDENTIFIER _ PARAMETERS:? _ JS_BLOCK EOL {% ([,name,,params,,block]) => { return { type: 'function', name: name, block, parameters: params } } %}
                       | _ %ASYNC __ IDENTIFIER _ PARAMETERS:? _ JS_BLOCK_ASYNC EOL {% ([,,,name,,params,,block]) => { return { type: 'function', name: name, block, parameters: params } } %}
 
-DIRECTIVE_STATEMENT -> DIRECTIVE __ OPEN_PARAMETERS EOL {% ([,directive,,parameters]) => { return { type: 'directive', value: directive, parameters }} %}
-                     | DIRECTIVE EOL {% ([directive,,]) => { return { type: 'directive', value: directive }} %}
+DIRECTIVE_STATEMENT -> DIRECTIVE __ IDENTIFIER EOL {% ([directive,,identifier]) => { return { type: 'directive', directive, value: identifier }} %}
+                     | DIRECTIVE EOL {% ([directive]) => { return { type: 'directive', directive }} %}
 
 DIRECTIVE -> %SINGLETON {% () => 'singleton' %}
            | %KEEPALIVE {% () => 'keepalive' %}
+           | %STATIC    {% () => 'static' %}
 
 LINK_DECLARATION -> LINK __ IDENTIFIER {% ([,,id]) => { return { type: 'link', array: false, required: false, name: id }} %}
                   | LINK_ARR __ IDENTIFIER {% ([,,id]) => { return { type: 'link', array: true, required: false, name: id }} %}
@@ -32,7 +33,7 @@ NAMESPACE -> IDENTIFIER
 
 OPEN_PARAMETERS -> _ IDENTIFIER _ ADDITIONAL_PARAMETERS:? _ {% ([,identifier,,more,]) => more ? [identifier, ...more] : [identifier] %}
 PARAMETERS -> _ %LPAREN _ IDENTIFIER _ ADDITIONAL_PARAMETERS:? _ %RPAREN _ {% ([,,,identifier,,more,,,]) => more ? [identifier, ...more] : [identifier] %}
-ADDITIONAL_PARAMETERS -> "," _ IDENTIFIER _ ADDITIONAL_PARAMETERS:? {% ([,,identifier,,more]) => more ? [identifier, ...more] : [identifier] %}
+ADDITIONAL_PARAMETERS -> %COMMA _ IDENTIFIER _ ADDITIONAL_PARAMETERS:? {% ([,,identifier,,more]) => more ? [identifier, ...more] : [identifier] %}
 
 EOL -> _ %SEMICOLON:?
 STRING -> %STRING {% ([d]) => d.value.substring(1, d.value.length - 1) %}

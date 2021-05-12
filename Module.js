@@ -29,9 +29,10 @@ export default class Module {
 	}
 	singleton = false;
 	keepalive = false;
+	'static' = null;
 
-	async directive({value}) {
-		this[value] = true;
+	async directive({directive, value}) {
+		this[directive] = value ?? true;
 	}
 
 	async link({required, array, name}) {

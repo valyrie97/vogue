@@ -10,6 +10,7 @@ export default {
 	IMPORT: 'import',
 	ASYNC: 'async',
 	AS: 'as',
+	COMMA: ',',
 	STRING: /'(?:\\['\\]|[^\n'\\])*'/,
 	LSQBRACKET: '[',
 	RSQBRACKET: ']',

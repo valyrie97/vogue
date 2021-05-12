@@ -11,16 +11,37 @@ export default class System extends Serializable {
 	instances = [];
 	modules = null;
 	namespace = null;
+	staticInstances = {};
 
 	constructor(modules, location = '.running') {
 		super();
 		this.modules = modules;
 		this.createNamespace();
 		const bootModules = this.deriveBootModules();
+		this.createStaticInstances();
 
-		log('instantiating modules...');
-		for(const name of bootModules)
+		log('instantiating boot modules...');
+		for(const name of bootModules) {
+			log('    ' + name);
 			this.newInstance(name);
+		}
+	}
+
+	createStaticInstances() {
+		log('deriving static modules...');
+		const staticModules = this.modules.filter((module) => {
+			return !!module.static;
+		}).map((module) => {
+			log('    ' + module.name.full);
+			return module;
+		});
+
+		log('instantiating static modules...');
+		for(const module of staticModules) {
+			log('    ' + module.static + ': ' + module.name.full);
+			this.staticInstances[module.static] =
+				this.newInstance(module.name.full, {});
+		}
 	}
 
 	deriveBootModules() {
@@ -59,7 +80,8 @@ export default class System extends Serializable {
 	newInstance(name, args = {}) {
 		const instance = this.createInstance(name, args);
 		const link = instance.link;
-		instance.invokeInternal('restore');
+		if(instance.hasPublicFunction('restore'))
+			instance.invokeInternal('restore');
 		return link;
 	}
 }

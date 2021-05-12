@@ -11,13 +11,20 @@ export default class Instance extends Serializable {
 
 	// reconstruct context when we need it...
 	createContext() {
-		const ctx = {};
+		let ctx = {};
 		for(const name in this.links) {
 			ctx[name] = this.links[name];
 		}
 		for(const name in this.module.imports) {
 			ctx[name] = this.module.imports[name];
 			this.locals.push(name);
+		}
+		ctx = {
+			...ctx,
+			...this.system.staticInstances
+		}
+		for(const identifier in this.system.staticInstances) {
+			this.locals.push(identifier);
 		}
 		ctx.create = this.system.newInstance.bind(this.system);
 		this.locals.push('create');
@@ -46,10 +53,14 @@ export default class Instance extends Serializable {
 		});
 	}
 
+	hasPublicFunction(name) {
+		return (name in this.module.functions);
+	}
+
 	invokeInternal(name, ...args) {
 		// console.log('invoking', name);
 		const content = this.module.functions[name];
-		if(!content) throw new TypeError(content + ' is not a function!');
+		if(!content) throw new TypeError(name + ' is not a function!');
 		return evalInContext(content, this.context, this.locals);
 	}
 
