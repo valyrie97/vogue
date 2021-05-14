@@ -47,8 +47,11 @@ export default class Module {
 		this.name.full = this.name.space + '.' + this.name.last;
 	}
 
-	async function({name, block}) {
-		this.functions[name] = block;
+	async function({name, block, parameters}) {
+		this.functions[name] = {
+			code: block,
+			parameters
+		};
 	}
 
 	async import({importName, name}) {

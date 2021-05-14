@@ -1,5 +1,6 @@
 
 import uglify from 'uglify-js';
+
 export default (code) => {
 	return uglify.minify(code, {
 		compress: {
@@ -7,6 +8,9 @@ export default (code) => {
 			global_defs: {
 				DEBUG: false
 			}
+		},
+		sourceMap: {
+			content: 'inline'
 		}
 	}).code;
 }

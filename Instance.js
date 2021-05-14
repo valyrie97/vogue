@@ -1,6 +1,10 @@
 
 import Serializable from './Serializable.js';
 import minify from './minify.js';
+import debug from 'debug';
+import _ from 'lodash';
+const log = debug('vogue:instance');
+
 
 export default class Instance extends Serializable {
 	module = null;
@@ -58,10 +62,12 @@ export default class Instance extends Serializable {
 	}
 
 	invokeInternal(name, ...args) {
-		// console.log('invoking', name);
-		const content = this.module.functions[name];
+		log('invoking', this.module.name.full + '.' + name, 'with args', args);
+		const content = this.module.functions[name].code;
+		const passingArguments = _.zipObject(this.module.functions[name].parameters, args);
+		log('arguments obj', passingArguments);
 		if(!content) throw new TypeError(name + ' is not a function!');
-		return evalInContext(content, this.context, this.locals);
+		return evalInContext(content, this.context, this.locals, passingArguments);
 	}
 
 	get link () {
@@ -69,21 +75,26 @@ export default class Instance extends Serializable {
 	}
 }
 
-minify()
-
-function evalInContext(js, context, locals) {
+function evalInContext(js, context, locals, passingArguments) {
 	//# Return the results of the in-line anonymous function we .call with the passed context
+	log('='.repeat(80) + 'OG Block');
+	log(js);
+	log('='.repeat(80) + 'Arguments');
+	log(passingArguments);
 	const that = this;
 	return function() {
-		const preminJs = `
-		'use strict';
-		(() => {
-		${locals.map((k) => `
-		const ${k} = this.${k};
-		`).join('\n')}
-		${js};
-		})();`;
+		const preminJs = 
+`'use strict';
+(() => {
+	${locals.map((k) => `const ${k} = this.${k};`).join('\n\t')}
+	${Object.keys(passingArguments).map(name => `let ${name} = passingArguments.${name};`).join('\n\t')}
+	${js}
+})();`;
+		log('='.repeat(80) + 'preminjs');
+		log(preminJs);
 		const newJs = minify(preminJs);
+		log('='.repeat(80) + 'minjs');
+		log(newJs);
 		// newJs should inject into result...
 		let result;
 		eval(newJs);
