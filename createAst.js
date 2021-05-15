@@ -6,9 +6,13 @@ import moo from 'moo';
 import tokens from './tokens.js';
 import { readFileSync } from 'fs';
 import debug from 'debug';
-const log = debug('vogue:ast');
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import minify from './minify.js';
-const grammarFile = 'grammar.ne';
+
+const log = debug('vogue:ast');
+const grammarFile = resolve(fileURLToPath(dirname(import.meta.url)), 'grammar.ne');
+log('grammarFile:', grammarFile);
 
 function createParser() {
 	// Parse the grammar source into an AST
