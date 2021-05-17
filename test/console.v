@@ -11,7 +11,7 @@ restore {
 			process.exit(2);
 		}
 	});
-	console.log(this);
+	
 	this.write(ansi.cursor.hide);
 }
 
@@ -38,7 +38,7 @@ choice(message, choices, type) {
 
 		terminal.singleColumnMenu(choices, (error, response) => {
 			// terminal.restoreCursor();
-			this.write(ansi.cursor.left + ansi.cursor.up(2 + response.selectedIndex));
+			this.write(ansi.cursor.left + ansi.cursor.up(4 + response.selectedIndex));
 			terminal.cyan(`${message} `);
 			terminal.grabInput(false);
 			// terminal.move
