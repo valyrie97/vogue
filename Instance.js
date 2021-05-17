@@ -12,6 +12,7 @@ export default class Instance extends Serializable {
 	system = null;
 	context = null;
 	locals = [];
+	internalFunctions = {};
 
 	// reconstruct context when we need it...
 	createContext() {
@@ -25,7 +26,8 @@ export default class Instance extends Serializable {
 		}
 		ctx = {
 			...ctx,
-			...this.system.staticInstances
+			...this.system.staticInstances,
+			...this.internalFunctions
 		}
 		for(const identifier in this.system.staticInstances) {
 			this.locals.push(identifier);
@@ -44,6 +46,11 @@ export default class Instance extends Serializable {
 		this.system = system;
 		for(const name of this.module.links.optional.arrays) this.links[name] = [];
 		for(const name of this.module.links.optional.single) this.links[name] = null;
+		
+		for(const fnName in this.module.functions) {
+			this.internalFunctions[fnName] = 
+			this.invokeInternal.bind(this, fnName);
+		}
 		this.createContext();
 
 		this._link = new Proxy(this, {
@@ -65,7 +72,6 @@ export default class Instance extends Serializable {
 		log('invoking', this.module.name.full + '.' + name, 'with args', args);
 		const content = this.module.functions[name].code;
 		const passingArguments = _.zipObject(this.module.functions[name].parameters, args);
-		log('arguments obj', passingArguments);
 		if(!content) throw new TypeError(name + ' is not a function!');
 		return evalInContext(content, this.context, this.locals, passingArguments);
 	}

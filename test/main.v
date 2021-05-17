@@ -1,11 +1,13 @@
-import 'terminal-kit' as terminalkit;
 singleton;
 
 link currentSave;
 
 async restore {
-	terminalkit.terminal.cyan('~Welcome to Vogue~\n');
-	this.currentSave ??= create('world', {});
+	console.log('~ Welcome to Vogue ~');
+	// process.stdout.write('&'.repeat(80) + '\n');
+	// process.stdout.write(JSON.stringify(console, null, 2))
+	// this.currentSave ??= create('world', {});
 	// console.log(Interface);
-	const choice = await Interface.choice('select a thing', ['a', 'b', 'c']);
+	// console.log(console);
+	const choice = await console.choice('select a thing', ['a', 'b', 'c']);
 }

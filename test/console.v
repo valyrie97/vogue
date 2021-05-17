@@ -1,26 +1,35 @@
-namespace vogue
-static Interface;
+static console;
 
-import 'terminal-kit' as terminalKit;
+import chalk from 'chalk';
+import tk from 'terminal-kit';
+import ansi from 'sisteransi';
 
 restore {
-	const {terminal} = terminalKit;
-	terminal.grabInput();
+	const {terminal} = tk;
 	terminal.on('key', function(name, matches, data) {
-
 		if (name === 'CTRL_C') {
 			process.exit(2);
 		}
 	});
+	console.log(this);
+	this.write(ansi.cursor.hide);
+}
+
+log(a) {
+	if(typeof a === 'number') a = chalk.yellow(a); 
+
+	// const string = a.toString();
+
+	process.stdout.write(a + '\n');
 }
 
 choice(message, choices, type) {
-	const {terminal} = terminalKit;
+	const {terminal} = tk;
 	type ??= 'string';
 
 	return new Promise(res => {
 		
-		terminal.saveCursor();
+		// terminal.saveCursor();
 
 		for(const part of message.split(/\x1b\[39m/g)) {
 			terminal.cyan(part);
@@ -28,8 +37,12 @@ choice(message, choices, type) {
 		terminal.cyan('\n');
 
 		terminal.singleColumnMenu(choices, (error, response) => {
-			terminal.restoreCursor();
+			// terminal.restoreCursor();
+			this.write(ansi.cursor.left + ansi.cursor.up(2 + response.selectedIndex));
 			terminal.cyan(`${message} `);
+			terminal.grabInput(false);
+			// terminal.move
+
 			terminal(response.selectedText + '\n').eraseDisplayBelow();
 			if(type === 'string') {
 				res(response.selectedText);
@@ -38,4 +51,8 @@ choice(message, choices, type) {
 			}
 		});
 	});
+}
+
+write(a) {
+	process.stdout.write(a);
 }
