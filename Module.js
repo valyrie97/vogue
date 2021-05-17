@@ -1,6 +1,8 @@
 import createAst from './createAst.js'
 import path from 'path';
 import debug from 'debug';
+import { createRequire } from 'module';
+import { pathToFileURL } from 'url';
 const log = debug('vogue:module');
 
 export default class Module {
@@ -55,7 +57,11 @@ export default class Module {
 	}
 
 	async import({importName, name}) {
-		const imported = await import(importName);
+		const nodePath = path.resolve(this.rootDir, 'node_module');
+		log('#'.repeat(80));
+		log(nodePath);
+		const __require__ = createRequire(nodePath);
+		const imported = __require__(importName);
 		if('default' in imported) this.imports[name] = imported.default;
 		else this.imports[name] = imported;
 	}
@@ -64,15 +70,15 @@ export default class Module {
 		this.variables[persist ? 'cold' : 'warm'].push(name);
 	}
 
-	static async create(location) {
+	static async create(location, rootDir) {
 		const module = new Module();
 		const ast = createAst(location);
 		const name = path.parse(location).name;
 
 		module.name.last = name;
 		module.name.full = name;
+		module.rootDir = rootDir;
 
-		// move module whole loop ass bitch into module.
 		for (const item of ast) {
 			if ('name' in item) {
 				if(item.name in module.identifiers)

@@ -13,12 +13,13 @@ export default class System extends Serializable {
 	namespace = null;
 	staticInstances = {};
 
-	constructor(modules, location = '.running') {
+	constructor(modules, rootDir) {
 		super();
 		this.modules = modules;
 		this.createNamespace();
 		const bootModules = this.deriveBootModules();
 		this.createStaticInstances();
+		this.rootDir = rootDir;
 
 		log('instantiating boot modules...');
 		for(const name of bootModules) {

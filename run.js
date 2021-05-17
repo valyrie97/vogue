@@ -1,28 +1,31 @@
 #!/usr/bin/env node
+import debug from 'debug';
+const log = debug('vogue:cli');
+const systemLocation = resolve(process.argv[2]);
 
-import { resolve } from 'path';
-import { readdirSync } from 'fs';
+import { parse, resolve } from 'path';
+import { readdirSync, lstatSync } from 'fs';
 
 import _ from 'lodash';
 import Module from './Module.js';
 import System from './System.js';
-import debug from 'debug';
 import './extensions.js';
 // globals inside grammar context
 import minify from './minify.js';
 
 const { get, set } = _;
-const log = debug('vogue:cli');
-const systemLocation = resolve(process.argv[2]);
 
 (async () => {
 	// TODO simplify this line gaddam
 	log('reading', systemLocation, '...');
 	const files = readdirSync(systemLocation);
-	const fullpaths = files.map(v => resolve(systemLocation, v));
+	const fullpaths = files
+		.map(v => resolve(systemLocation, v))
+		.filter(v => lstatSync(v).isFile())
+		.filter(v => parse(v).ext === '.v');
 	for(const path of fullpaths) log(path);
 	log('parsing modules...');
-	const modules = await Promise.all(fullpaths.map(loc => Module.create(loc)));
+	const modules = await Promise.all(fullpaths.map(loc => Module.create(loc, systemLocation)));
 
 	// const modules = 
 	// 	(await Promise.all(
@@ -35,5 +38,5 @@ const systemLocation = resolve(process.argv[2]);
 	// 		return acc;
 	// 	}, {});
 	
-	const sys = new System(modules);
+	const sys = new System(modules, systemLocation);
 })()
