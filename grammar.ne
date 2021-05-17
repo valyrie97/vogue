@@ -6,9 +6,12 @@ STATEMENT -> _ LINK_DECLARATION EOL {% ([,stuff]) => { return stuff } %}
            | _ FUNCTION_DECLARATION EOL {% ([,d]) => d %}
            | _ %NAMESPACE __ NAMESPACE EOL {% ([,,,namespace]) => { return { type: 'namespace', namespace: namespace[0] } } %}
            | _ DIRECTIVE_STATEMENT EOL {% ([,d]) => d %}
-           | _ %IMPORT __ STRING __ %AS __ IDENTIFIER EOL {% ([,,,moduleName,,,,identifier]) => { return { type: 'import', name: identifier, importName: moduleName }} %}
+           | _ IMPORT_STATMENT EOL {% ([,d]) => d %}
            | _ %RUNTIME __ %MEMBER __ IDENTIFIER EOL {% ([,,,,,identifier]) => {return{ type: 'variable', persist: false, name: identifier }} %}
            | _ %MEMBER __ IDENTIFIER EOL {% ([,,,identifier]) => {return{ type: 'variable', persist: true, name: identifier }} %}
+
+IMPORT_STATMENT -> %IMPORT __ STRING __ %AS __ IDENTIFIER {% ([,,moduleName,,,,identifier]) => { return { type: 'import', name: identifier, importName: moduleName }} %}
+                 | %IMPORT __ IDENTIFIER __ %FROM __ STRING {% ([,,identifier,,,,moduleName]) => { return { type: 'import', name: identifier, importName: moduleName }} %}
 
 FUNCTION_DECLARATION -> _ IDENTIFIER _ PARAMETERS:? _ JS_BLOCK EOL {% ([,name,,params,,block]) => { return { type: 'function', name: name, block, parameters: params } } %}
                       | _ %ASYNC __ IDENTIFIER _ PARAMETERS:? _ JS_BLOCK_ASYNC EOL {% ([,,,name,,params,,block]) => { return { type: 'function', name: name, block, parameters: params } } %}
@@ -43,5 +46,6 @@ JS_BLOCK -> %JS_BLOCK {% ([block]) => minify(`result = (() => {${block.value.sub
           | %JS_BLOCK2 {% ([block]) => minify(`result = (() => {${block.value.substring(1, block.value.length - 1)}})();`) %}
 JS_BLOCK_ASYNC -> %JS_BLOCK {% ([block]) => minify(`result = (async () => {${block.value.substring(2, block.value.length - 2)}})();`) %}
                 | %JS_BLOCK2 {% ([block]) => minify(`result = (async () => {${block.value.substring(1, block.value.length - 1)}})();`) %}
+SPREAD_OPERATOR -> %SPREAD_OPERATOR
 _ -> null | %SPACE {% () => undefined %}
 __ -> %SPACE {% () => undefined %}
