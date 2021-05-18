@@ -9,7 +9,3 @@ restore {
 	alive ??= true;
 	age ??= 0;
 }
-
-tick (days) {
-	
-}

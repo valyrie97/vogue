@@ -2,17 +2,23 @@ link[] places;
 link place;
 link character;
 
+import random from 'random-world';
+
 restore {
 	if(this.places.empty) {
-		for(let i = 0; i < 3; i ++) {
-			const place = create('places.forest', {
-				world: this
-			});
-			this.places.push(place);
+		for(let i = 0; i < 10; i ++) {
+			const name = random.city();
+			if(name.indexOf(' ') > -1) {
+				i --;
+				continue;
+			}
+			console.log(name);
 		}
 	}
 
-	for(const place of this.places) {
-		console.log(place.ping());
-	}
+	character ??= create('')
+}
+
+async render() {
+
 }
