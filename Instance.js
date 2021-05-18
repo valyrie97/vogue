@@ -83,10 +83,10 @@ export default class Instance extends Serializable {
 
 function evalInContext(js, context, locals, passingArguments) {
 	//# Return the results of the in-line anonymous function we .call with the passed context
-	log('='.repeat(80) + 'OG Block');
-	log(js);
-	log('='.repeat(80) + 'Arguments');
-	log(passingArguments);
+	// log('='.repeat(80) + 'OG Block');
+	// log(js);
+	// log('='.repeat(80) + 'Arguments');
+	// log(passingArguments);
 	const that = this;
 	return function() {
 		const preminJs = 
@@ -96,11 +96,11 @@ function evalInContext(js, context, locals, passingArguments) {
 	${Object.keys(passingArguments).map(name => `let ${name} = passingArguments.${name};`).join('\n\t')}
 	${js}
 })();`;
-		log('='.repeat(80) + 'preminjs');
-		log(preminJs);
+		// log('='.repeat(80) + 'preminjs');
+		// log(preminJs);
 		const newJs = minify(preminJs);
-		log('='.repeat(80) + 'minjs');
-		log(newJs);
+		// log('='.repeat(80) + 'minjs');
+		// log(newJs);
 		// newJs should inject into result...
 		let result;
 		eval(newJs);
