@@ -78,5 +78,5 @@ export default function createAst(location) {
 	log(location);
 	log(ast);
 
-	return ast;
+	return ast || [];
 }
