@@ -35,7 +35,7 @@ NAMESPACE -> IDENTIFIER
            | IDENTIFIER %DOTOP NAMESPACE {% ([a,,b]) => { return [`${a}.${b}`] } %}
 
 OPEN_PARAMETERS -> _ IDENTIFIER _ ADDITIONAL_PARAMETERS:? _ {% ([,identifier,,more,]) => more ? [identifier, ...more] : [identifier] %}
-PARAMETERS -> _ %LPAREN _ IDENTIFIER _ ADDITIONAL_PARAMETERS:? _ %RPAREN _ {% ([,,,identifier,,more,,,]) => more ? [identifier, ...more] : [identifier] %}
+PARAMETERS -> _ %LPAREN _ IDENTIFIER:? _ ADDITIONAL_PARAMETERS:? _ %RPAREN _ {% ([,,,identifier,,more,,,]) => identifier ? (more ? [identifier, ...more] : [identifier]) : [] %}
 ADDITIONAL_PARAMETERS -> %COMMA _ IDENTIFIER _ ADDITIONAL_PARAMETERS:? {% ([,,identifier,,more]) => more ? [identifier, ...more] : [identifier] %}
 
 EOL -> _ %SEMICOLON:?
