@@ -1,23 +1,25 @@
-import createAst from './createAst.js'
+import { createAst, DirectiveRule, DirectiveValue, FunctionRule, ImportRule, LinkRule, NamespaceRule, VariableRule } from './createAst'
 import path from 'path';
 import debug from 'debug';
 import { createRequire } from 'module';
 import { pathToFileURL } from 'url';
 const log = debug('vogue:module');
 
+type Link = {
+	name: string,
+	array: boolean,
+	required: boolean
+}
+
 export default class Module {
-	links = {
-		required: {
-			single: [],
-			arrays: []
-		},
-		optional: {
-			single: [],
-			arrays: []
-		}
-	};
+	links: Link[] = [];
 	globals = [];
-	functions = [];
+	functions: {
+		[name: string]: {
+			code: string,
+			parameters: string[]
+		}
+	} = {};
 	identifiers = {};
 	name = {
 		space: '',
@@ -28,35 +30,42 @@ export default class Module {
 	variables = {
 		cold: [],
 		warm: []
-	}
-	singleton = false;
-	keepalive = false;
-	'static' = null;
+	};
+	directives: {
+		[key: string]: DirectiveValue
+	} = {
+		'singleton': false,
+		'keepalive': false,
+		'static': ''
+	};
+	rootDir: string = '';
+	
 
-	async directive({directive, value}) {
-		this[directive] = value ?? true;
+	async directive({directive, value}: DirectiveRule) {
+		this.directives[directive] = value;
 	}
 
-	async link({required, array, name}) {
-		this.links
-			[required ? 'required' : 'optional']
-			[array ? 'arrays' : 'single']
-			.push(name);
+	async link({required, array, name}: LinkRule) {
+		this.links.push({
+			name,
+			required,
+			array
+		});
 	}
 
-	async namespace({namespace}) {
+	async namespace({namespace}: NamespaceRule) {
 		this.name.space = namespace;
 		this.name.full = this.name.space + '.' + this.name.last;
 	}
 
-	async function({name, block, parameters}) {
+	async function({name, block, parameters}: FunctionRule) {
 		this.functions[name] = {
 			code: block,
 			parameters
 		};
 	}
 
-	async import({importName, name}) {
+	async import({importName, name}: ImportRule) {
 		const nodePath = path.resolve(this.rootDir, 'node_module');
 		log('#'.repeat(80));
 		log(nodePath);
@@ -66,11 +75,11 @@ export default class Module {
 		else this.imports[name] = imported;
 	}
 
-	async variable({persist, name}) {
+	async variable({persist, name}: VariableRule) {
 		this.variables[persist ? 'cold' : 'warm'].push(name);
 	}
 
-	static async create(location, rootDir) {
+	static async create(location: string, rootDir: string) {
 		const module = new Module();
 		const ast = createAst(location);
 		const name = path.parse(location).name;

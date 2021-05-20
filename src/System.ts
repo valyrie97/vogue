@@ -1,19 +1,28 @@
-import Instance from './Instance.js';
-import Serializable from './Serializable.js';
+import Instance from './Instance';
+import Serializable from './Serializable';
 import _ from 'lodash';
-import Module from './Module.js';
+import Module from './Module';
 import debug from 'debug';
 const log = debug('vogue:system')
 
 const {get, set} = _;
 
-export default class System extends Serializable {
-	instances = [];
-	modules = null;
-	namespace = null;
-	staticInstances = {};
+type ModuleNamespaceMap = {
+	[key: string]: ModuleNamespaceMap | Module
+};
 
-	constructor(modules, rootDir) {
+type ModuleName = string;
+
+class System extends Serializable {
+	instances: Instance[] = [];
+	modules: Module[];
+	namespace: ModuleNamespaceMap = {};
+	staticInstances: {
+		[key: string]: Instance
+	} = {};
+	rootDir: string;
+
+	constructor(modules: Module[], rootDir: string) {
 		super();
 		this.modules = modules;
 		this.createNamespace();
@@ -70,15 +79,15 @@ export default class System extends Serializable {
 		}, {});
 	}
 
-	getModule(name) {
+	getModule(name: ModuleName) {
 		return get(this.namespace, name);
 	}
 
-	createInstance(name, args = {}) {
+	createInstance(name: ModuleName, args = {}) {
 		return new Instance(this.getModule(name), null, args, this);
 	}
 
-	newInstance(name, args = {}) {
+	newInstance(name: ModuleName, args = {}) {
 		const instance = this.createInstance(name, args);
 		const link = instance.link;
 		if(instance.hasPublicFunction('restore'))
@@ -86,3 +95,5 @@ export default class System extends Serializable {
 		return link;
 	}
 }
+
+export default System;

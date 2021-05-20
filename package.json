@@ -11,15 +11,22 @@
     "c": "nearleyc",
     "test": "node run.js test",
     "debug": "cross-env DEBUG=vogue:* yarn test",
-    "postinstall": "cd test && yarn"
+    "postinstall": "cd test && yarn",
+    "tsc": "tsc"
   },
   "dependencies": {
+    "@types/debug": "^4.1.5",
+    "@types/lodash": "^4.14.169",
+    "@types/nearley": "^2.11.1",
+    "@types/node": "^15.3.0",
+    "@types/uglify-js": "^3.13.0",
     "cross-env": "^7.0.3",
     "debug": "^4.3.1",
     "lodash": "^4.17.21",
     "moo": "^0.5.1",
     "nearley": "^2.20.1",
     "nedb": "^1.8.0",
+    "typescript": "^4.2.4",
     "uglify-js": "^3.13.5",
     "yarn": "^1.22.10"
   }

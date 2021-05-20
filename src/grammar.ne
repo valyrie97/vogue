@@ -17,7 +17,7 @@ FUNCTION_DECLARATION -> _ IDENTIFIER _ PARAMETERS:? _ JS_BLOCK EOL {% ([,name,,p
                       | _ %ASYNC __ IDENTIFIER _ PARAMETERS:? _ JS_BLOCK_ASYNC EOL {% ([,,,name,,params,,block]) => { return { type: 'function', name: name, block, parameters: params } } %}
 
 DIRECTIVE_STATEMENT -> DIRECTIVE __ IDENTIFIER EOL {% ([directive,,identifier]) => { return { type: 'directive', directive, value: identifier }} %}
-                     | DIRECTIVE EOL {% ([directive]) => { return { type: 'directive', directive }} %}
+                     | DIRECTIVE EOL {% ([directive]) => { return { type: 'directive', directive, value: true }} %}
 
 DIRECTIVE -> %SINGLETON {% () => 'singleton' %}
            | %KEEPALIVE {% () => 'keepalive' %}
@@ -42,10 +42,10 @@ EOL -> _ %SEMICOLON:?
 STRING -> %STRING {% ([d]) => d.value.substring(1, d.value.length - 1) %}
 SEMICOLON -> %SEMICOLON
 IDENTIFIER -> %IDENTIFIER {% ([id]) => id.value %}
-JS_BLOCK -> %JS_BLOCK {% ([block]) => minify(`result = (() => {${block.value.substring(2, block.value.length - 2)}})();`) %}
-          | %JS_BLOCK2 {% ([block]) => minify(`result = (() => {${block.value.substring(1, block.value.length - 1)}})();`) %}
-JS_BLOCK_ASYNC -> %JS_BLOCK {% ([block]) => minify(`result = (async () => {${block.value.substring(2, block.value.length - 2)}})();`) %}
-                | %JS_BLOCK2 {% ([block]) => minify(`result = (async () => {${block.value.substring(1, block.value.length - 1)}})();`) %}
+JS_BLOCK -> %JS_BLOCK {% ([block]) => (`(() => {${block.value.substring(2, block.value.length - 2)}});`) %}
+          | %JS_BLOCK2 {% ([block]) => (`(() => {${block.value.substring(1, block.value.length - 1)}});`) %}
+JS_BLOCK_ASYNC -> %JS_BLOCK {% ([block]) => (`(async () => {${block.value.substring(2, block.value.length - 2)}});`) %}
+                | %JS_BLOCK2 {% ([block]) => (`(async () => {${block.value.substring(1, block.value.length - 1)}});`) %}
 SPREAD_OPERATOR -> %SPREAD_OPERATOR
 _ -> null | %SPACE {% () => undefined %}
 __ -> %SPACE {% () => undefined %}
