@@ -3,6 +3,10 @@ static console;
 import chalk from 'chalk';
 import tk from 'terminal-kit';
 import ansi from 'sisteransi';
+import debugFactory from 'debug';
+import util from 'util';
+
+runtime member debug;
 
 restore {
 	const {terminal} = tk;
@@ -11,12 +15,16 @@ restore {
 			process.exit(2);
 		}
 	});
+
+	debug ??= debugFactory('vogue:console');
 	
 	this.write(ansi.cursor.hide);
+	debug('Booted console plugin!');
 }
 
 log(a) {
 	if(typeof a === 'number') a = chalk.yellow(a); 
+	if(typeof a === 'object') a = util.formatWithOptions({ colors: true }, '%o', a)
 
 	// const string = a.toString();
 

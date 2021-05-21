@@ -32,7 +32,8 @@ export default class Instance extends Serializable {
 		// system globals!
 		// TODO turn this into its own vogue module! system.create/instance.create
 		// TODO request context from system...
-		initialContext.create = this.system.createInstance.bind(this.system);
+		initialContext.create = this.system.newInstance.bind(this.system);
+		initialContext.process = process;
 		for(const name in this.system.staticInstances)
 			initialContext[name] = this.system.staticInstances[name];
 
@@ -43,6 +44,10 @@ export default class Instance extends Serializable {
 			initialContext[link.name] = [];
 		for(const link of this.module.links.filter((v: Link) => !v.array && !v.required))
 			initialContext[link.name] = null;
+		for(const variable of this.module.variables)
+			initialContext[variable.name] = null;
+		for(const name in this.module.imports)
+			initialContext[name] = this.module.imports[name];
 
 		const context = vm.createContext(initialContext);
 
@@ -52,34 +57,11 @@ export default class Instance extends Serializable {
 `
 var ${name} = ${async ? 'async' : ''} function ${name}(${parameters.join(', ')}) ${code}
 `;
-			vm.runInContext(injectedScript, context);
+			vm.runInContext(injectedScript, context, {
+				
+			});
 		}
 		
-		// local functions time!
-		// for(const name of this.module.functions)
-
-
-
-		// let ctx = vm.createContext({
-		// 	create: this.system.newInstance.bind(this.system),
-		// 	...this.system.staticInstances,
-		// 	...this.internalFunctions
-		// });
-
-		
-		// for(const name in this.module.imports) {
-		// 	ctx[name] = this.module.imports[name];
-		// 	this.locals.push(name);
-		// }
-		// ctx = {
-		// 	...ctx,
-			
-		// }
-		// for(const identifier in this.system.staticInstances) {
-		// 	this.locals.push(identifier);
-		// }
-		// // ctx.create = 
-		// this.locals.push('create');
 		return context;
 	};
 
@@ -91,27 +73,21 @@ var ${name} = ${async ? 'async' : ''} function ${name}(${parameters.join(', ')})
 		this.context = this.createContext();
 
 		this._link = new Proxy(this, {
-			get(target: Instance, prop, receiver) {
-				if(prop === 'restore') return undefined;
+			get(target: Instance, prop: string, receiver) {
+				log(`getting ${target.module.name.full}.${prop}: (${target.module.identifiers[prop]}|${typeof target.context[prop]})`);
+				const DNEText = `${target.module.name.full}.${prop.toString()} either does not exist, or is not accessible`;
+				if(prop === 'restore') throw new Error(DNEText);
+
 				if(prop in target.module.functions) {
-					// TODO return the fn
-					return 
+					return target.context[prop];
 				}
-				return undefined;
+				throw new Error(DNEText);
 			}
 		});
 	}
 
-	hasPublicFunction(name: string) {
-		return (name in this.module.functions);
-	}
-
-	invokeInternal(name: string, ...args: any[]): any {
-		log('invoking', this.module.name.full + '.' + name, 'with args', args);
-
-		if(typeof this.context[name] === 'function') {
-			this.context[name](...args);
-		} else throw new Error(`${name} is not a function in ${this.module.name.full}`)
+	restore() {
+		return this.context.restore?.();
 	}
 
 	get link () {

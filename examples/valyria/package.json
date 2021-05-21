@@ -1,0 +1,12 @@
+{
+  "name": "valyria",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@kmamal/sdl": "^0.0.13",
+    "chalk": "^4.1.1",
+    "sisteransi": "^1.0.5",
+    "terminal-kit": "^2.1.2"
+  }
+}

@@ -18,6 +18,11 @@ export type Link = {
 	name: string,
 	array: boolean,
 	required: boolean
+};
+
+export type Variable = {
+	name: string,
+	persist: boolean
 }
 
 export default class Module {
@@ -41,10 +46,7 @@ export default class Module {
 	imports: {
 		[key: string]: any
 	} = {};
-	variables: any = {
-		cold: [],
-		warm: []
-	};
+	variables: Variable[] = [];
 	// directives
 	'singleton': boolean = false;
 	'keepalive': boolean = false;
@@ -83,8 +85,6 @@ export default class Module {
 
 	async import({ importName, name }: ImportRule): Promise<void> {
 		const nodePath = path.resolve(this.rootDir, 'node_module');
-		log('#'.repeat(80));
-		log(nodePath);
 		const __require__ = createRequire(nodePath);
 		const imported = __require__(importName);
 		if ('default' in imported) this.imports[name] = imported.default;
@@ -92,7 +92,10 @@ export default class Module {
 	}
 
 	async variable({ persist, name }: VariableRule): Promise<void> {
-		this.variables[persist ? 'cold' : 'warm'].push(name);
+		this.variables.push({
+			name,
+			persist
+		});
 	}
 
 	static async create(location: string, rootDir: string) {
@@ -112,6 +115,9 @@ export default class Module {
 					module.identifiers[item.name] = item.type;
 				}
 			}
+
+			log(`processing AST Rule (${'name' in item ? name + '|' : '' }${item.type})`);
+			// log(item);
 
 			if (item.type in module) {
 				const func = module[item.type] as ((arg0: Rule) => Promise<void>)

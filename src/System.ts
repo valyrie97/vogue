@@ -92,8 +92,7 @@ class System extends Serializable {
 	newInstance(name: ModuleName, args = {}) {
 		const instance = this.createInstance(name, args);
 		const link = instance.link;
-		if(instance.hasPublicFunction('restore'))
-			instance.invokeInternal('restore');
+		instance.restore();
 		return link;
 	}
 }
