@@ -1,8 +1,14 @@
 import nearley from 'nearley';
+// TODO none of these shits have typings, but its OKAY
+// @ts-ignore
 import compile from 'nearley/lib/compile.js';
+// @ts-ignore
 import generate from 'nearley/lib/generate.js';
+// @ts-ignore
 import nearleyGrammar from 'nearley/lib/nearley-language-bootstrapped.js';
+// @ts-ignore
 import moo from 'moo';
+
 import tokens from './tokens.js';
 import { readFileSync } from 'fs';
 import debug from 'debug';
@@ -11,7 +17,7 @@ import { fileURLToPath } from 'url';
 import minify from './minify.js';
 
 const log = debug('vogue:ast');
-const grammarFile = resolve(fileURLToPath(dirname(import.meta.url)), 'grammar.ne');
+const grammarFile = resolve(fileURLToPath(dirname(import.meta.url)), '..', 'lib', 'grammar.ne');
 log('grammarFile:', grammarFile);
 
 function createParser() {
@@ -53,10 +59,62 @@ function createParser() {
 	eval(grammarJs);
 
 	const grammar = module.exports;
+	// THESE IS COMPLICATED SHITS, IDK MAN WHAT ARE TYPINGS
+	// @ts-ignore
 	return new nearley.Parser(nearley.Grammar.fromCompiled(grammar))
 }
 
-export default function createAst(location) {
+
+export type FunctionRule = {
+	type: 'function',
+	name: string
+	block: string,
+	parameters: string[],
+	async: boolean
+};
+
+export type VariableRule = {
+	type: 'variable',
+	persist: boolean,
+	name: string
+};
+
+export type NamespaceRule = {
+	type: 'namespace',
+	namespace: string
+};
+
+export type ImportRule = {
+	type: 'import',
+	name: string,
+	importName: string
+};
+
+export type LinkRule = {
+	type: 'link',
+	array: boolean,
+	required: boolean,
+	name: string
+}
+
+export type DirectiveValue = string | boolean;
+
+export type DirectiveRule = {
+	type: 'directive',
+	directive: 'static' | 'singleton' | 'keepalive',
+	value: DirectiveValue
+}
+
+export type Rule = FunctionRule
+					| VariableRule
+					| ImportRule
+					| DirectiveRule
+					| LinkRule
+					| NamespaceRule;
+
+export type AST = Rule[];
+
+export function createAst(location: string): AST {
 	const parser = createParser();
 	const contents = readFileSync(location).toString();
 

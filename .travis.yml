@@ -1,0 +1,7 @@
+language: node_js
+node_js:
+  - "16.2.0"
+os:
+  - windows
+  - linux
+  - osx

@@ -12,14 +12,14 @@ import System from './System.js';
 import './extensions.js';
 import { fileURLToPath } from 'url';
 // globals inside grammar context
-import minify from './minify.js';
+import minify from './minify';
 
 const { get, set } = _;
-const standardLibrary = resolve(fileURLToPath(dirname(import.meta.url)), 'lib');
+const standardLibrary = resolve(fileURLToPath(dirname(import.meta.url)), '..', 'lib', 'vogue');
 
 (async () => {
 	// TODO simplify this line gaddam
-	const ignoreDeps = (path) => parse(path).name !== 'node_modules';
+	const ignoreDeps = (path: string) => parse(path).name !== 'node_modules';
 
 	const files = [
 		...walkdirSync(systemLocation, ignoreDeps),
@@ -37,10 +37,10 @@ const standardLibrary = resolve(fileURLToPath(dirname(import.meta.url)), 'lib');
 	const sys = new System(modules, systemLocation);
 })()
 
-function walkdirSync(root, filter = () => true) {
+function walkdirSync(root: string, filter: ((path: string) => boolean) = () => true): string[] {
 	log('reading', root, '...');
 	const paths = readdirSync(root).map(v => resolve(root, v));
-	const [ files, dirs ] = sift(paths.filter(filter), (v) => lstatSync(v).isFile());
+	const [ files, dirs ] = sift(paths.filter(filter), (v: string) => lstatSync(v).isFile());
 	log(`files: ${files.length} | dirs: ${dirs.length}`);
 	const rfiles = dirs.map(v => walkdirSync(v, filter)).reduce((a, v) => [...a, ...v], []);
 
@@ -50,15 +50,8 @@ function walkdirSync(root, filter = () => true) {
 	];
 }
 
-/**
- * 
- * @param {T[]} a
- * @param {(v: T, i: number, a: T[]) => string} fn
- * 
- * @returns {Object<string, T[]>}
- */
-function sift(a, fn) {
-	let left = [], right = [];
+function sift<T>(a: T[], fn: (v: T, i: number, a: T[]) => boolean): [T[], T[]] {
+	let left: T[] = [], right: T[] = [];
 	for(let i = 0; i < a.length; i ++) {
 		const v = a[i]
 		const lr = !!fn(v, i, a);

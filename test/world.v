@@ -1,28 +1,16 @@
-link[] places;
-link place;
-link character;
+link[] pawns;
 
-import random from 'random-world';
+member map;
+member size;
 
 restore {
-	if(this.places.empty)
-		this.createPlaces();
+	for(let i = 0; i < 3; i ++) {
 
-	this.character ??= create('')
+	}
+
+	this.size ??= 64;
 }
 
 async render() {
 
-}
-
-createPlaces() {
-	for(let i = 0; i < 10; i ++) {
-		const name = random.city();
-		const valid = !!name.match(/^[A-Za-z ]*$/);
-		if(!valid) {
-			i --;
-			continue;
-		}
-		console.log(name);
-	}
 }

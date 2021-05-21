@@ -2,6 +2,28 @@
 # yarn lockfile v1
 
 
+"@types/debug@^4.1.5":
+  version "4.1.5"
+  resolved "https://registry.npmjs.org/@types/debug/-/debug-4.1.5.tgz"
+
+"@types/lodash@^4.14.169":
+  version "4.14.169"
+  resolved "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.169.tgz"
+
+"@types/nearley@^2.11.1":
+  version "2.11.1"
+  resolved "https://registry.npmjs.org/@types/nearley/-/nearley-2.11.1.tgz"
+
+"@types/node@^15.3.0":
+  version "15.3.0"
+  resolved "https://registry.npmjs.org/@types/node/-/node-15.3.0.tgz"
+
+"@types/uglify-js@^3.13.0":
+  version "3.13.0"
+  resolved "https://registry.npmjs.org/@types/uglify-js/-/uglify-js-3.13.0.tgz"
+  dependencies:
+    source-map "^0.6.1"
+
 async@0.2.10:
   version "0.2.10"
   resolved "https://registry.npmjs.org/async/-/async-0.2.10.tgz"
@@ -18,7 +40,7 @@ commander@^2.19.0:
 
 cross-env@^7.0.3:
   version "7.0.3"
-  resolved "https://registry.yarnpkg.com/cross-env/-/cross-env-7.0.3.tgz#865264b29677dc015ba8418918965dd232fc54cf"
+  resolved "https://registry.npmjs.org/cross-env/-/cross-env-7.0.3.tgz"
   dependencies:
     cross-spawn "^7.0.1"
 
@@ -32,7 +54,7 @@ cross-spawn@^7.0.1:
 
 debug@^4.3.1:
   version "4.3.1"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.1.tgz#f0d229c505e0c6d8c49ac553d1b13dc183f6b2ee"
+  resolved "https://registry.npmjs.org/debug/-/debug-4.3.1.tgz"
   dependencies:
     ms "2.1.2"
 
@@ -80,7 +102,7 @@ moo@^0.5.0, moo@^0.5.1:
 
 ms@2.1.2:
   version "2.1.2"
-  resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
+  resolved "https://registry.npmjs.org/ms/-/ms-2.1.2.tgz"
 
 nearley@^2.20.1:
   version "2.20.1"
@@ -130,6 +152,18 @@ shebang-regex@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/shebang-regex/-/shebang-regex-3.0.0.tgz"
 
+source-map@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.npmjs.org/source-map/-/source-map-0.6.1.tgz"
+
+supervisor@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.npmjs.org/supervisor/-/supervisor-0.12.0.tgz"
+
+typescript@^4.2.4:
+  version "4.2.4"
+  resolved "https://registry.npmjs.org/typescript/-/typescript-4.2.4.tgz"
+
 uglify-js@^3.13.5:
   version "3.13.5"
   resolved "https://registry.npmjs.org/uglify-js/-/uglify-js-3.13.5.tgz"
@@ -146,4 +180,4 @@ which@^2.0.1:
 
 yarn@^1.22.10:
   version "1.22.10"
-  resolved "https://registry.yarnpkg.com/yarn/-/yarn-1.22.10.tgz#c99daa06257c80f8fa2c3f1490724e394c26b18c"
+  resolved "https://registry.npmjs.org/yarn/-/yarn-1.22.10.tgz"
