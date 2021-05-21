@@ -5,6 +5,9 @@ import debug from 'debug';
 import _ from 'lodash';
 const log = debug('vogue:instance');
 import vm from 'vm';
+import Module, { Link } from './Module.js';
+import System from './System.js';
+import { KV } from './KV.js';
 /**
  * @typedef {import('./System.js').default} System
  * @typedef {import('./Module.js').default} Module
@@ -12,33 +15,45 @@ import vm from 'vm';
 
  
 export default class Instance extends Serializable {
-	/** @type {Module} */
-	module = null;
+	module: Module;
 	links = {}
-	system = null;
-	context = null;
+	system: System;
+	context: vm.Context;
 	locals = [];
 	internalFunctions = {};
-	/** @type {Proxy<Instance>} */
-	_link = null;
+	_link: Instance;
+	location: string;
 
-	createContext() {
-		const initialContext = {};
+	createContext(): vm.Context {
+		if(this.context) return this.context;
+
+		const initialContext: KV = {};
 
 		// system globals!
 		// TODO turn this into its own vogue module! system.create/instance.create
 		// TODO request context from system...
-		initialContext.create = this.system.create.bind(this.system);
-		for(const name of this.system.staticInstances)
+		initialContext.create = this.system.createInstance.bind(this.system);
+		for(const name in this.system.staticInstances)
 			initialContext[name] = this.system.staticInstances[name];
 
 		// local links!
 		// optional arrays
 		// TODO maybe make these property accessors to allow for some automation
-		for(const name of this.module.links.optional.arrays)
-			initialContext[name] = [];
-		for(const name of this.module.links.optional.single)
-			initialContext[name] = null;
+		for(const link of this.module.links.filter((v: Link) => v.array && !v.required))
+			initialContext[link.name] = [];
+		for(const link of this.module.links.filter((v: Link) => !v.array && !v.required))
+			initialContext[link.name] = null;
+
+		const context = vm.createContext(initialContext);
+
+		for(const name in this.module.functions) {
+			const { code, parameters, async } = this.module.functions[name];
+			const injectedScript =
+`
+var ${name} = ${async ? 'async' : ''} function ${name}(${parameters.join(', ')}) ${code}
+`;
+			vm.runInContext(injectedScript, context);
+		}
 		
 		// local functions time!
 		// for(const name of this.module.functions)
@@ -65,26 +80,18 @@ export default class Instance extends Serializable {
 		// }
 		// // ctx.create = 
 		// this.locals.push('create');
-		this.context = ctx;
+		return context;
 	};
 
-	/**
-	 * 
-	 * @param {Module} module 
-	 * @param {string} location 
-	 * @param {Object<string, any>} parameters 
-	 * @param {System} system 
-	 */
-	constructor(module, location, parameters, system) {
+	constructor(module: Module, location: string, parameters: {[name: string]: any}, system: System) {
 		super();
 		this.module = module;
 		this.location = location;
 		this.system = system;
-		
-		this.createContext();
+		this.context = this.createContext();
 
 		this._link = new Proxy(this, {
-			get(target, prop, receiver) {
+			get(target: Instance, prop, receiver) {
 				if(prop === 'restore') return undefined;
 				if(prop in target.module.functions) {
 					// TODO return the fn
@@ -95,12 +102,16 @@ export default class Instance extends Serializable {
 		});
 	}
 
-	hasPublicFunction(name) {
+	hasPublicFunction(name: string) {
 		return (name in this.module.functions);
 	}
 
-	invokeInternal(name, ...args) {
+	invokeInternal(name: string, ...args: any[]): any {
 		log('invoking', this.module.name.full + '.' + name, 'with args', args);
+
+		if(typeof this.context[name] === 'function') {
+			this.context[name](...args);
+		} else throw new Error(`${name} is not a function in ${this.module.name.full}`)
 	}
 
 	get link () {

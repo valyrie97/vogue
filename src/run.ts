@@ -7,15 +7,15 @@ import { parse, resolve, dirname } from 'path';
 import { readdirSync, lstatSync } from 'fs';
 
 import _ from 'lodash';
-import Module from './Module';
-import System from './System';
+import Module from './Module.js';
+import System from './System.js';
 import './extensions.js';
 import { fileURLToPath } from 'url';
 // globals inside grammar context
 import minify from './minify';
 
 const { get, set } = _;
-const standardLibrary = resolve(fileURLToPath(dirname(import.meta.url)), 'lib');
+const standardLibrary = resolve(fileURLToPath(dirname(import.meta.url)), '..', 'lib', 'vogue');
 
 (async () => {
 	// TODO simplify this line gaddam

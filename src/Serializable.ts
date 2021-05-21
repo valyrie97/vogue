@@ -1,7 +1,11 @@
 // import { Ubjson } from '@shelacek/ubjson';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { KV } from './KV';
 
 export default class Serializable {
+
+	constructor(...args: any[]) {}
+
 	// things that need to be stored only in cold
 	// storage are keyed with a special prefix
 	static CLASS_REFERENCE = '$$CLASS_NAME';
@@ -13,25 +17,29 @@ export default class Serializable {
 
 	start() {}
 
-	toUbj() {
-		return Ubjson.encode(this.toSerializableObject());
-	}
+	// toUbj() {
+	// 	return Ubjson.encode(this.toSerializableObject());
+	// }
 
-	static fromUbj(buffer) {
-		return this.fromSerializableObject(Ubjson.decode(buffer));
-	}
+	// static fromUbj(buffer) {
+	// 	return this.fromSerializableObject(Ubjson.decode(buffer));
+	// }
 
 	toJson() {
 		return JSON.stringify(this.toSerializableObject(), null, 2);
 	}
 
-	static fromJson(str) {
+	static serializationDependencies(): any[] {
+		return [];
+	}
+
+	static fromJson(str: string) {
 		return this.fromSerializableObject(JSON.parse(str));
 	}
 
 	toSerializableObject() {
 
-		const transformValue = (val) => {
+		const transformValue = (val: any): any => {
 			if(Array.isArray(val)) {
 				return transformArray(val);
 			} else if (val === null || val === undefined) {
@@ -43,8 +51,8 @@ export default class Serializable {
 			}
 		}
 
-		const transformObject = (obj) => {
-			const clone = {};
+		const transformObject = (obj: KV): KV => {
+			const clone: KV = {};
 			for(const prop of Object.keys(obj)) {
 				if(prop.startsWith('_')) continue;
 
@@ -56,7 +64,7 @@ export default class Serializable {
 			return clone;
 		}
 
-		const transformArray = (arr) => {
+		const transformArray = (arr: any[]): any[] => {
 			const clone = [];
 			for(const item of arr) {
 				clone.push(transformValue(item));
@@ -67,10 +75,10 @@ export default class Serializable {
 		return transformObject(this);
 	}
 
-	static fromSerializableObject(obj) {
+	static fromSerializableObject(obj: KV) {
 		if(obj[Serializable.CLASS_REFERENCE] !== this.name) return null;
 
-		const transformValue = (val) => {
+		const transformValue = (val: any): any => {
 			if(Array.isArray(val)) {
 				return transformArray(val);
 			} else if(val === null || val === undefined) {
@@ -78,7 +86,9 @@ export default class Serializable {
 			} else if(typeof val === 'object') {
 				if(Serializable.CLASS_REFERENCE in val) {
 					const classes = this.serializationDependencies();
-					const matchingClasses = classes.filter(classObject => classObject.name === val[Serializable.CLASS_REFERENCE]);
+					const matchingClasses = classes.filter((classObject) => {
+						classObject.name === val[Serializable.CLASS_REFERENCE]
+					});
 					if(matchingClasses.length === 1) {
 						return matchingClasses[0].fromSerializableObject(val);
 					} else {
@@ -91,8 +101,8 @@ export default class Serializable {
 			}
 		}
 
-		const transformObject = (obj) => {
-			const clone = {};
+		const transformObject = (obj: KV): KV => {
+			const clone: KV = {};
 			for(const prop of Object.keys(obj)) {
 				if(prop.startsWith('_')) continue;
 
@@ -101,7 +111,7 @@ export default class Serializable {
 			return clone;
 		}
 
-		const transformArray = (arr) => {
+		const transformArray = (arr: any[]): any[] => {
 			const clone = [];
 			for(const item of arr) {
 				clone.push(transformValue(item));
@@ -125,7 +135,7 @@ export default class Serializable {
 		switch(encoding) {
 			case 'json': return this.toJson();
 			case 'ubjson':
-			case 'ubj': return this.toUbj();
+			// case 'ubj': return this.toUbj();
 			default: {
 				throw new TypeError('Unknown encoding: ' + encoding);
 			}
@@ -133,14 +143,14 @@ export default class Serializable {
 
 	}
 	
-	static deserialize(obj, {
+	static deserialize(obj: any, {
 		encoding = 'json'
 	} = {}) {
 
 		switch(encoding) {
 			case 'json': return this.fromJson(obj);
 			case 'ubjson':
-			case 'ubj': return this.fromUbj(obj);
+			// case 'ubj': return this.fromUbj(obj);
 			default: {
 				throw new TypeError('Unknown encoding: ' + encoding);
 			}
@@ -149,32 +159,40 @@ export default class Serializable {
 
 	async restore() {}
 
-	static createFromDisk(filename, ...args) {
+	static createFromDisk(filename: string, ...args: any[]) {
 		if(existsSync(filename)) {
 			const instance = this.deserialize(readFileSync(createFilepath(filename)));
+			// TS is plain and simply wrong... symbols can be used to index object...
+			// @ts-ignore
 			instance[Serializable.PERSIST_LOCATION] = createFilepath(filename);
-			instance.restore();
+			instance?.restore();
 			return instance;
 		} else {
 			const instance = new this(...args);
+			// again... TS is wrong...
+			// @ts-ignore
 			instance[Serializable.PERSIST_LOCATION] = createFilepath(filename);
-			instance.updateDisk();
+			instance?.updateDisk();
 			return instance;
 		}
 	}
 
-	updateDisk(filepath) {
+	updateDisk(filepath?: string) {
 		// if it hasnt yet been written to disk...
 		// this can happen if the contrustor 
 		// was called outside of createFromDisk
 		if(filepath) {
+			// see above... TS7053 is just _wrong_. incorrect. thats not how JS works.
+			// @ts-ignore
 			this[Serializable.PERSIST_LOCATION] = createFilepath(filepath);
 		}
 		const data = this.serialize();
+		// this is getting annoying...
+		// @ts-ignore
 		writeFileSync(this[Serializable.PERSIST_LOCATION], data);
 	}
 }
 
-function createFilepath(path) {
+function createFilepath(path: string) {
 	return `data/${path}`;
 }

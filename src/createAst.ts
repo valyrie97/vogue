@@ -9,15 +9,15 @@ import nearleyGrammar from 'nearley/lib/nearley-language-bootstrapped.js';
 // @ts-ignore
 import moo from 'moo';
 
-import tokens from './tokens';
+import tokens from './tokens.js';
 import { readFileSync } from 'fs';
 import debug from 'debug';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import minify from './minify';
+import minify from './minify.js';
 
 const log = debug('vogue:ast');
-const grammarFile = resolve(fileURLToPath(dirname(import.meta.url)), 'grammar.ne');
+const grammarFile = resolve(fileURLToPath(dirname(import.meta.url)), '..', 'lib', 'grammar.ne');
 log('grammarFile:', grammarFile);
 
 function createParser() {
@@ -69,7 +69,8 @@ export type FunctionRule = {
 	type: 'function',
 	name: string
 	block: string,
-	parameters: string[]
+	parameters: string[],
+	async: boolean
 };
 
 export type VariableRule = {
@@ -79,7 +80,7 @@ export type VariableRule = {
 };
 
 export type NamespaceRule = {
-	type: 'namesapce',
+	type: 'namespace',
 	namespace: string
 };
 

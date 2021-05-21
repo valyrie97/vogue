@@ -3,7 +3,11 @@
     "module": "esnext",
     "moduleResolution": "node",
     "strict": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "target": "esnext",
+    "outDir": "out",
+    "sourceMap": true,
+    "declaration": true
   },
   "include": [
     "src/**/*.ts"

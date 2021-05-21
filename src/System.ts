@@ -1,7 +1,7 @@
-import Instance from './Instance';
-import Serializable from './Serializable';
+import Instance from './Instance.js';
+import Serializable from './Serializable.js';
 import _ from 'lodash';
-import Module from './Module';
+import Module from './Module.js';
 import debug from 'debug';
 const log = debug('vogue:system')
 
@@ -79,12 +79,14 @@ class System extends Serializable {
 		}, {});
 	}
 
-	getModule(name: ModuleName) {
-		return get(this.namespace, name);
+	getModule(name: ModuleName): Module {
+		const module = get(this.namespace, name);
+		if(module instanceof Module) return module;
+		else throw Error(`${name} is not a module`);
 	}
 
 	createInstance(name: ModuleName, args = {}) {
-		return new Instance(this.getModule(name), null, args, this);
+		return new Instance(this.getModule(name), '', args, this);
 	}
 
 	newInstance(name: ModuleName, args = {}) {

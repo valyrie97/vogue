@@ -1,11 +1,20 @@
-import { createAst, DirectiveRule, DirectiveValue, FunctionRule, ImportRule, LinkRule, NamespaceRule, VariableRule } from './createAst'
+import {
+	createAst,
+	DirectiveRule,
+	FunctionRule,
+	ImportRule,
+	LinkRule,
+	NamespaceRule,
+	Rule, 
+	VariableRule
+} from './createAst.js'
 import path from 'path';
 import debug from 'debug';
 import { createRequire } from 'module';
 import { pathToFileURL } from 'url';
 const log = debug('vogue:module');
 
-type Link = {
+export type Link = {
 	name: string,
 	array: boolean,
 	required: boolean
@@ -17,35 +26,41 @@ export default class Module {
 	functions: {
 		[name: string]: {
 			code: string,
+			async: boolean,
 			parameters: string[]
 		}
 	} = {};
-	identifiers = {};
+	identifiers: {
+		[name: string]: Rule["type"]
+	} = {};
 	name = {
 		space: '',
 		last: '',
 		full: ''
 	};
-	imports = {};
-	variables = {
+	imports: {
+		[key: string]: any
+	} = {};
+	variables: any = {
 		cold: [],
 		warm: []
 	};
-	directives: {
-		[key: string]: DirectiveValue
-	} = {
-		'singleton': false,
-		'keepalive': false,
-		'static': ''
-	};
+	// directives
+	'singleton': boolean = false;
+	'keepalive': boolean = false;
+	'static': string = '';
+	// other stuff
 	rootDir: string = '';
-	
 
-	async directive({directive, value}: DirectiveRule) {
-		this.directives[directive] = value;
+	async directive({ directive, value }: DirectiveRule): Promise<void> {
+		if (typeof this[directive] === 'boolean')
+			(this[directive] as boolean) = value as boolean;
+		else if (typeof this[directive] === 'string')
+			(this[directive] as string) = value as string;
+		//  = value as string;
 	}
 
-	async link({required, array, name}: LinkRule) {
+	async link({ required, array, name }: LinkRule): Promise<void> {
 		this.links.push({
 			name,
 			required,
@@ -53,29 +68,30 @@ export default class Module {
 		});
 	}
 
-	async namespace({namespace}: NamespaceRule) {
+	async namespace({ namespace }: NamespaceRule): Promise<void> {
 		this.name.space = namespace;
 		this.name.full = this.name.space + '.' + this.name.last;
 	}
 
-	async function({name, block, parameters}: FunctionRule) {
+	async function({ name, block, parameters, async }: FunctionRule): Promise<void> {
 		this.functions[name] = {
 			code: block,
-			parameters
+			parameters,
+			async
 		};
 	}
 
-	async import({importName, name}: ImportRule) {
+	async import({ importName, name }: ImportRule): Promise<void> {
 		const nodePath = path.resolve(this.rootDir, 'node_module');
 		log('#'.repeat(80));
 		log(nodePath);
 		const __require__ = createRequire(nodePath);
 		const imported = __require__(importName);
-		if('default' in imported) this.imports[name] = imported.default;
+		if ('default' in imported) this.imports[name] = imported.default;
 		else this.imports[name] = imported;
 	}
 
-	async variable({persist, name}: VariableRule) {
+	async variable({ persist, name }: VariableRule): Promise<void> {
 		this.variables[persist ? 'cold' : 'warm'].push(name);
 	}
 
@@ -90,13 +106,16 @@ export default class Module {
 
 		for (const item of ast) {
 			if ('name' in item) {
-				if(item.name in module.identifiers)
+				if (item.name in module.identifiers)
 					throw new Error('Identifier ' + item.name + ' already declared!');
-				else module.identifiers[item.name] = item.type;
+				else {
+					module.identifiers[item.name] = item.type;
+				}
 			}
 
-			if(item.type in module) {
-				await module[item.type](item);
+			if (item.type in module) {
+				const func = module[item.type] as ((arg0: Rule) => Promise<void>)
+				func.call(module, item);
 			}
 		}
 
