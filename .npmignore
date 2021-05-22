@@ -3,3 +3,4 @@ src
 test
 .editorconfig
 tsconfig.json
+.system

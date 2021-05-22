@@ -52,8 +52,11 @@ export default class Instance {
 			initialContext[link.name] = [];
 		for(const link of this.module.links.filter((v: Link) => !v.array && !v.required))
 			initialContext[link.name] = null;
-		for(const variable of this.module.variables)
-			initialContext[variable.name] = null;
+		for(const variable of this.module.variables) {
+			attachHookedProperty(initialContext, variable.name, null, () => {
+				this.system.saveInstance(this);
+			})
+		}
 		for(const name in this.module.imports)
 			initialContext[name] = this.module.imports[name];
 
@@ -133,4 +136,19 @@ ${name} = ${name}.bind(this);
 	toString() {
 		return this.module.name.full + '(' + this._id + ')';
 	}
+}
+
+function attachHookedProperty(target: any, name: string, initialValue: any, changedHook: () => void) {
+	const propId = uuid.v4();
+	target[propId] = initialValue;
+	// TODO if its an object, replace it with a dead simple proxy? for detecting internal changes...
+	Object.defineProperty(target, name, {
+		get() {
+			return target[propId];
+		},
+		set(value) {
+			target[propId] = value;
+			changedHook();
+		}
+	})
 }
