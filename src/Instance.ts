@@ -29,11 +29,14 @@ export default class Instance extends Serializable {
 
 		const initialContext: KV = {};
 
+		// node bindings
+		initialContext.setTimeout = setTimeout;
+		initialContext.process = process;
+
 		// system globals!
 		// TODO turn this into its own vogue module! system.create/instance.create
 		// TODO request context from system...
 		initialContext.create = this.system.newInstance.bind(this.system);
-		initialContext.process = process;
 		for(const name in this.system.staticInstances)
 			initialContext[name] = this.system.staticInstances[name];
 
