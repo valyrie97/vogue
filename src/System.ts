@@ -28,6 +28,8 @@ class System {
 		this.rootDir = rootDir;
 		this.modules = modules;
 		this.createNamespace();
+
+		ensureDirSync(resolve(this.rootDir, '.system'));
 		
 		const vault = readdirSync(resolve(this.rootDir, '.system')).map(v => resolve(this.rootDir, '.system', v));
 		const serializedInstances: SerializedInstance[] = vault.map((v) => JSON.parse(readFileSync(v).toString()));
