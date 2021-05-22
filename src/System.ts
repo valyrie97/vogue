@@ -1,8 +1,8 @@
-import Instance from './Instance.js';
+import Instance, { Link, SerializedInstance } from './Instance.js';
 import _ from 'lodash';
 import Module from './Module.js';
 import debug from 'debug';
-import { writeFileSync } from 'fs';
+import { lstatSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import { ensureDirSync } from 'fs-extra';
 const log = debug('vogue:system')
@@ -16,11 +16,11 @@ type ModuleNamespaceMap = {
 type ModuleName = string;
 
 class System {
-	instances: Instance[] = [];
+	instances: Map<string, Instance> = new Map();
 	modules: Module[];
 	namespace: ModuleNamespaceMap = {};
-	staticInstances: {
-		[key: string]: Instance
+	staticLinks: {
+		[key: string]: Link
 	} = {};
 	rootDir: string;
 
@@ -28,14 +28,85 @@ class System {
 		this.rootDir = rootDir;
 		this.modules = modules;
 		this.createNamespace();
+		
+		const vault = readdirSync(resolve(this.rootDir, '.system')).map(v => resolve(this.rootDir, '.system', v));
+		const serializedInstances: SerializedInstance[] = vault.map((v) => JSON.parse(readFileSync(v).toString()));
+
+		log('injecting serialized instances...');
+		for(const serializedInstance of serializedInstances)
+			this.injectSerializedInstance(serializedInstance);
+		log('linking serialized instances...');
+		for(const serializedInstance of serializedInstances)
+			this.linkSerializedInstance(serializedInstance);
+		
+		log('restoring static instances...');
+		for(const [,instance] of this.instances) {
+			if(!!instance.module.static) {
+				instance.restore();
+			}
+		}
+			
+		log('restoring boot instances...');
+		for(const [,instance] of this.instances) {
+			if(!!instance.module.singleton) {
+				instance.restore();
+			}
+		}
+			// this.inject(serializedInstance);
+		
+
+		if (vault.length !== 0) {
+			return this;
+		}
+
+		// TODO future workflow notes
+		// pull jsons into boots
+		// filter json boots
+		// create static / singletons into boots
+		// boot boots!
+
+
 		const bootModules = this.deriveBootModules();
 		this.createStaticInstances();
 
 		log('instantiating boot modules...');
 		for(const name of bootModules) {
 			log('    ' + name);
-			this.newInstance(name);
+			this.newLink(name);
 		}
+	}
+
+	linkSerializedInstance(serializedInstance: SerializedInstance): void {
+		const instance = this.getInstanceById(serializedInstance.id);
+		for(const name in serializedInstance.links) {
+			const linkId = serializedInstance.links[name]
+			const linkedInstance = this.getInstanceById(linkId);
+			const linkedInstanceLink = linkedInstance.link;
+			instance.setLink(name, linkedInstanceLink);
+		}
+	}
+
+	injectSerializedInstance(serializedInstance: SerializedInstance): void {
+		const instance = new Instance(this.getModule(serializedInstance.type), this.rootDir, {}, this, {
+			id: serializedInstance.id
+		});
+		this.instances.set(instance._id, instance);
+
+		for(const name in serializedInstance.members) {
+			instance.setMember(name, serializedInstance.members[name]);
+		}
+
+		if(instance.module.static) {
+			log('injected static instance ' + instance.module.static + ': ' + instance.module.name.full);
+			this.staticLinks[instance.module.static] = instance.link;
+		}
+	}
+
+	getInstanceById(id: string): Instance {
+		if(!this.instances.has(id))
+			throw new Error(`${id} is not a valid instance link id`);
+
+		return this.instances.get(id) as Instance;
 	}
 
 	createStaticInstances() {
@@ -50,8 +121,8 @@ class System {
 		log('instantiating static modules...');
 		for(const module of staticModules) {
 			log('    ' + module.static + ': ' + module.name.full);
-			this.staticInstances[module.static] =
-				this.newInstance(module.name.full, {});
+			this.staticLinks[module.static] =
+				this.newLink(module.name.full, {});
 		}
 	}
 
@@ -81,16 +152,13 @@ class System {
 	}
 
 	saveInstance(instance: Instance): void {
-		log('saving ' + instance)
 		const path = resolve(this.rootDir, '.system');
 		ensureDirSync(path);
 		const file = instance._id + '.json';
 		const filepath = resolve(path, file);
-		log(filepath);
+		log('saving ' + instance + '...');
 		const json = JSON.stringify(instance.toSerializableObject(), null, 2)
-		log(json);
 		writeFileSync(filepath, json);
-		log('synced ' + instance);
 	}
 
 	getModule(name: ModuleName): Module {
@@ -100,12 +168,12 @@ class System {
 	}
 
 	createInstance(name: ModuleName, args = {}) {
-		const instance = new Instance(this.getModule(name), '', args, this);
+		const instance = new Instance(this.getModule(name), this.rootDir, args, this);
 		this.saveInstance(instance);
 		return instance;
 	}
 
-	newInstance(name: ModuleName, args = {}) {
+	newLink(name: ModuleName, args = {}) {
 		const instance = this.createInstance(name, args);
 		const link = instance.link;
 		instance.restore();
@@ -114,3 +182,13 @@ class System {
 }
 
 export default System;
+
+// class SerializedInstanceInjector {
+// 	system: System;
+// 	serializedInstances: SerializedInstance[];
+
+// 	constructor(serializedInstances: SerializedInstance[], system: System) {
+// 		this.serializedInstances = serializedInstances;
+// 		this.system = system;
+// 	}
+// }

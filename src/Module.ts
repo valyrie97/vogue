@@ -14,7 +14,7 @@ import { createRequire } from 'module';
 import { pathToFileURL } from 'url';
 const log = debug('vogue:module');
 
-export type Link = {
+export type LinkDescription = {
 	name: string,
 	array: boolean,
 	required: boolean
@@ -26,7 +26,7 @@ export type Variable = {
 }
 
 export default class Module {
-	links: Link[] = [];
+	links: LinkDescription[] = [];
 	globals = [];
 	functions: {
 		[name: string]: {

@@ -10,7 +10,7 @@
   "scripts": {
     "test": "node --enable-source-maps --unhandled-rejections=strict out/run.js test",
     "debug": "cross-env DEBUG=vogue:* yarn test",
-    "debug:watch": "cross-env DEBUG=vogue:* supervisor -w out,test,lib -n exit --exec yarn -- test",
+    "debug:watch": "cross-env DEBUG=vogue:* supervisor -w out,test/**/*.v,lib -n exit --exec yarn -- test",
     "postinstall": "yarn compile && cd test && yarn",
     "postcompile:watch": "echo DONE",
     "compile": "tsc",
