@@ -10,7 +10,7 @@
   "scripts": {
     "test": "node --enable-source-maps --unhandled-rejections=strict out/run.js test",
     "debug": "cross-env DEBUG=vogue:* yarn test",
-    "debug:watch": "cross-env DEBUG=vogue:* supervisor -w out,test,lib -n exit --exec yarn -- test",
+    "debug:watch": "cross-env DEBUG=vogue:* supervisor -w out,test/**/*.v,lib -n exit --exec yarn -- test",
     "postinstall": "yarn compile && cd test && yarn",
     "postcompile:watch": "echo DONE",
     "compile": "tsc",
@@ -18,12 +18,15 @@
   },
   "dependencies": {
     "@types/debug": "^4.1.5",
+    "@types/fs-extra": "^9.0.11",
     "@types/lodash": "^4.14.169",
     "@types/nearley": "^2.11.1",
     "@types/node": "^15.3.0",
     "@types/uglify-js": "^3.13.0",
+    "@types/uuid": "^8.3.0",
     "cross-env": "^7.0.3",
     "debug": "^4.3.1",
+    "fs-extra": "^10.0.0",
     "lodash": "^4.17.21",
     "moo": "^0.5.1",
     "nearley": "^2.20.1",
@@ -31,6 +34,7 @@
     "supervisor": "^0.12.0",
     "typescript": "^4.2.4",
     "uglify-js": "^3.13.5",
+    "uuid": "^8.3.2",
     "yarn": "^1.22.10"
   }
 }
