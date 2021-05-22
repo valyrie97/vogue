@@ -9,6 +9,7 @@
   },
   "scripts": {
     "test": "mocha tests",
+    "test:watch": "supervisor -n exit -w out,tests --exec mocha -- tests",
     "debug": "cross-env DEBUG=vogue:* yarn node --enable-source-maps --unhandled-rejections=strict out/run.js test",
     "debug:watch": "cross-env DEBUG=vogue:* supervisor -w out,test/**/*.v,lib -n exit --exec yarn -- test",
     "postinstall": "yarn compile && cd test && yarn",
