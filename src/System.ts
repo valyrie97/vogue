@@ -1,8 +1,10 @@
 import Instance from './Instance.js';
-import Serializable from './Serializable.js';
 import _ from 'lodash';
 import Module from './Module.js';
 import debug from 'debug';
+import { writeFileSync } from 'fs';
+import { resolve } from 'path';
+import { ensureDirSync } from 'fs-extra';
 const log = debug('vogue:system')
 
 const {get, set} = _;
@@ -13,7 +15,7 @@ type ModuleNamespaceMap = {
 
 type ModuleName = string;
 
-class System extends Serializable {
+class System {
 	instances: Instance[] = [];
 	modules: Module[];
 	namespace: ModuleNamespaceMap = {};
@@ -23,12 +25,11 @@ class System extends Serializable {
 	rootDir: string;
 
 	constructor(modules: Module[], rootDir: string) {
-		super();
+		this.rootDir = rootDir;
 		this.modules = modules;
 		this.createNamespace();
 		const bootModules = this.deriveBootModules();
 		this.createStaticInstances();
-		this.rootDir = rootDir;
 
 		log('instantiating boot modules...');
 		for(const name of bootModules) {
@@ -79,6 +80,19 @@ class System extends Serializable {
 		}, {});
 	}
 
+	saveInstance(instance: Instance): void {
+		log('saving ' + instance)
+		const path = resolve(this.rootDir, '.system');
+		ensureDirSync(path);
+		const file = instance._id + '.json';
+		const filepath = resolve(path, file);
+		log(filepath);
+		const json = JSON.stringify(instance.toSerializableObject(), null, 2)
+		log(json);
+		writeFileSync(filepath, json);
+		log('synced ' + instance);
+	}
+
 	getModule(name: ModuleName): Module {
 		const module = get(this.namespace, name);
 		if(module instanceof Module) return module;
@@ -86,7 +100,9 @@ class System extends Serializable {
 	}
 
 	createInstance(name: ModuleName, args = {}) {
-		return new Instance(this.getModule(name), '', args, this);
+		const instance = new Instance(this.getModule(name), '', args, this);
+		this.saveInstance(instance);
+		return instance;
 	}
 
 	newInstance(name: ModuleName, args = {}) {

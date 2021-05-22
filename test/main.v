@@ -19,4 +19,6 @@ async restore {
 	// window.setScene()
 
 	// await counter.render();
+
+	sync();
 }

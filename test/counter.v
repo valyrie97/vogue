@@ -2,6 +2,7 @@ member count;
 
 increment() {
 	count ++;
+	sync();
 }
 
 getCount() {

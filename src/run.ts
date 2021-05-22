@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --enable-source-maps --unhandled-rejections=strict
 import debug from 'debug';
 const log = debug('vogue:cli');
 const systemLocation = resolve(process.argv[2]);
@@ -11,14 +11,11 @@ import Module from './Module.js';
 import System from './System.js';
 import './extensions.js';
 import { fileURLToPath } from 'url';
-// globals inside grammar context
-import minify from './minify';
 
 const { get, set } = _;
 const standardLibrary = resolve(fileURLToPath(dirname(import.meta.url)), '..', 'lib', 'vogue');
 
 (async () => {
-	// TODO simplify this line gaddam
 	const ignoreDeps = (path: string) => parse(path).name !== 'node_modules';
 
 	const files = [
@@ -35,7 +32,7 @@ const standardLibrary = resolve(fileURLToPath(dirname(import.meta.url)), '..', '
 	const modules = await Promise.all(fullpaths.map(loc => Module.create(loc, systemLocation)));
 	
 	const sys = new System(modules, systemLocation);
-})()
+})();
 
 function walkdirSync(root: string, filter: ((path: string) => boolean) = () => true): string[] {
 	log('reading', root, '...');
