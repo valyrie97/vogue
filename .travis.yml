@@ -5,3 +5,4 @@ os:
   - windows
   - linux
   - osx
+env: YARN_GPG=no
