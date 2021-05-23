@@ -1,0 +1,9 @@
+{
+	"extension": [
+			".ts"
+	],
+	"require": [
+			"ts-node/esm.mjs"
+	],
+	"cache": false
+}

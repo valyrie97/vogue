@@ -509,6 +509,7 @@ tar-stream@^2.1.4:
 terminal-kit@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/terminal-kit/-/terminal-kit-2.1.2.tgz#08689ff9f8efc6614d34d4cc7be916a91742b896"
+  integrity sha512-1eG7CrQfE1dd5ZHPG5WrTk/DTeskFPqSLEl+QYmvwvI41dRCN2j1qVyxA4FwE0/x24AbjhSA3FJSIgWqQD610Q==
   dependencies:
     "@cronvel/get-pixels" "^3.4.0"
     chroma-js "^2.1.1"
