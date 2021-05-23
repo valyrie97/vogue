@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "multiview [ yarn test:watch ] [ yarn compile:watch ]",
     "test": "c8 --all mocha",
-    "test:watch": "supervisor -w src,test,.mocharc.json -n exit --extensions js,ts,node --exec yarn -- test",
+    "test:watch": "cross-env FORCE_COLOR=true supervisor -t -w src,test,.mocharc.json -n exit --extensions js,ts,node --exec cross-env -- yarn test",
     "debug": "cross-env DEBUG=vogue:* yarn node --enable-source-maps --unhandled-rejections=strict out/run.js test",
     "debug:watch": "supervisor -w out,test/system/**/*.v,lib -n exit --exec yarn -- clear_and yarn debug",
     "compile": "tsc",
