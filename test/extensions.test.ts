@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import '../src/extensions.ts';
-import sinon from 'sinon';
 
 describe('extensions', () => {
 	it('creates empty array extensions', () => {

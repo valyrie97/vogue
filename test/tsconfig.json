@@ -1,12 +1,8 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "ES6",
     "moduleResolution": "node",
-    "strict": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "esnext",
-    "sourceMap": true,
-    "declaration": true
+    "target": "es2020"
   },
   "include": [
     "**/*.ts"

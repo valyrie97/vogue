@@ -1,4 +1,4 @@
-import { createAst } from '../out/createAst.js';
+import { createAst } from '../src/createAst.js';
 import { expect } from 'chai';
 import * as ModuleFiles from './lib/ModuleFiles.js'
 
