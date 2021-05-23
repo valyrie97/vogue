@@ -1,3 +1,0 @@
-async test(a) {
-	
-}
