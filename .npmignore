@@ -4,3 +4,11 @@ test
 .editorconfig
 tsconfig.json
 examples
+.system
+*.tgz
+.nyc_output
+coverage
+syntax.md
+testinglib
+.travis.yml
+.mocharc.json

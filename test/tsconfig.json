@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "module": "ES6",
+    "moduleResolution": "node",
+    "target": "es2020"
+  },
+  "include": [
+    "**/*.ts"
+  ]
+}
