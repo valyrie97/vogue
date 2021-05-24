@@ -2,3 +2,5 @@ node_modules
 out
 .system
 *.tgz
+.nyc_output
+coverage
