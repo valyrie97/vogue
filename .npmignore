@@ -7,3 +7,7 @@ tsconfig.json
 *.tgz
 .nyc_output
 coverage
+syntax.md
+testinglib
+.travis.yml
+.mocharc.json
