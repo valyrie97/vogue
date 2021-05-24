@@ -7,6 +7,9 @@
   "bin": {
     "vogue": "out/run.js"
   },
+  "repository": {
+    "url": "https://github.com/marcus13345/vogue"
+  },
   "scripts": {
     "dev": "multiview [ yarn test:watch ] [ yarn compile:watch ] [ yarn debug:watch ]",
     "test": "c8 --all mocha",
