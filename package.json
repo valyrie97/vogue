@@ -8,14 +8,14 @@
     "vogue": "out/run.js"
   },
   "scripts": {
-    "dev": "multiview [ yarn test:watch ] [ yarn compile:watch ]",
+    "dev": "multiview [ yarn test:watch ] [ yarn compile:watch ] [ yarn debug:watch ]",
     "test": "c8 --all mocha",
     "test:watch": "cross-env FORCE_COLOR=true supervisor -t -w src,test,.mocharc.json -n exit --extensions js,ts,node --exec cross-env -- yarn test",
-    "debug": "cross-env DEBUG=vogue:* yarn node --enable-source-maps --unhandled-rejections=strict out/run.js test",
-    "debug:watch": "supervisor -w out,test/system/**/*.v,lib -n exit --exec yarn -- clear_and yarn debug",
+    "debug": "cross-env DEBUG=vogue:* FORCE_COLOR=true DEBUG_COLORS=true DEBUG_HIDE_DATE=true node --enable-source-maps --unhandled-rejections=strict out/run.js examples/test",
+    "debug:watch": "supervisor -t -w out,test/system/**/*.v,lib -n exit --exec yarn -- debug",
     "compile": "tsc",
     "compile:watch": "yarn compile --watch --preserveWatchOutput",
-    "postinstall": "yarn compile"
+    "postinstall": "yarn compile && cd examples/test && yarn"
   },
   "dependencies": {
     "@types/chai": "^4.2.18",
