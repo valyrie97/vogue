@@ -1,0 +1,8 @@
+{
+  "spec": [
+		"test/**/*.test.ts"
+	],
+	"loader": [
+		"ts-node/esm.mjs"
+	]
+}

@@ -14,7 +14,6 @@ import { readFileSync } from 'fs';
 import debug from 'debug';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import minify from './minify.js';
 
 const log = debug('vogue:ast');
 const grammarFile = resolve(fileURLToPath(dirname(import.meta.url)), '..', 'lib', 'grammar.ne');
