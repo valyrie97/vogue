@@ -1,4 +1,3 @@
-singleton;
 
 link counter;
 link window;

@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from './lib/expect.js';
 import '../src/extensions.ts';
 
 describe('extensions', () => {

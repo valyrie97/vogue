@@ -1,4 +1,4 @@
-#!/usr/bin/env node --enable-source-maps --unhandled-rejections=strict
+#!/usr/bin/env node --enable-source-maps
 import debug from 'debug';
 const log = debug('vogue:cli');
 const systemLocation = resolve(process.argv[2]);
@@ -8,7 +8,7 @@ import { readdirSync, lstatSync } from 'fs';
 
 import _ from 'lodash';
 import Module from './Module.js';
-import System from './System.js';
+import {System} from './System.js';
 import './extensions.js';
 import { fileURLToPath } from 'url';
 
@@ -31,7 +31,7 @@ const standardLibrary = resolve(fileURLToPath(dirname(import.meta.url)), '..', '
 	log('parsing modules...');
 	const modules = await Promise.all(fullpaths.map(loc => Module.create(loc, systemLocation)));
 	
-	const sys = new System(modules, systemLocation);
+	const sys = await System.create(modules, systemLocation);
 })();
 
 function walkdirSync(root: string, filter: ((path: string) => boolean) = () => true): string[] {

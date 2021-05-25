@@ -3,7 +3,7 @@ import _ from 'lodash';
 const log = debug('vogue:instance');
 import vm from 'vm';
 import Module, { LinkDescription, Variable } from './Module.js';
-import System from './System.js';
+import { System } from './System.js';
 import * as uuid from 'uuid';
 /**
  * @typedef {import('./System.js').default} System
@@ -54,9 +54,11 @@ export default class Instance {
 		// TODO request context from system...
 		initialContext.create = this.system.newLink.bind(this.system);
 		initialContext.process = process;
-		for(const name in this.system.staticLinks) {
+
+		// static links!
+		for(const [name, link] of this.system.staticLinks) {
 			log('creating context with static link: ' + name);
-			initialContext[name] = this.system.staticLinks[name];
+			initialContext[name] = this.system.staticLinks.get(name);
 		}
 
 		// local links!
@@ -89,9 +91,11 @@ export default class Instance {
 			vm.runInContext(injectedScript, context, {});
 		}
 		
-		log('context created! ' + Object.keys(context));
+		log('context created!');
+		log(Object.keys(context));
 		// log(context);
 
+		this.context = context;
 		return context;
 	};
 
@@ -107,7 +111,6 @@ export default class Instance {
 
 	constructor(
 		module: Module,
-		location: string,
 		parameters: {[name: string]: any},
 		system: System,
 		options?: {
@@ -115,7 +118,7 @@ export default class Instance {
 		}
 	) {
 		this.module = module;
-		this.location = location;
+		this.location = this.module.rootDir;
 		this.system = system;
 		// this.context = this.createContext();
 		this._id = options?.id ?? uuid.v4();
@@ -123,9 +126,6 @@ export default class Instance {
 		this._link = new Proxy(this, {
 			get(target: Instance, prop: string, receiver) {
 				log(`getting ${target.module.name.full}.${prop.toString()}: (${target.module.identifiers[prop]}|${typeof target.context?.[prop]})`);
-
-				if(target.context === null)
-					target.restore();
 
 				const DNEText = `${target.module.name.full}.${prop.toString()} either does not exist, or is not accessible`;
 				if(prop === 'restore') throw new Error(DNEText);
@@ -140,11 +140,9 @@ export default class Instance {
 		log('created ' + this);
 	}
 
-	restore() {
-		if(this.context === null)
-			this.context = this.createContext();
+	async restore() {
 
-		return this.context?.restore?.();
+		return await this.context?.restore?.();
 	}
 
 	get link () {
