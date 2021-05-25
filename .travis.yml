@@ -6,3 +6,5 @@ os:
   - linux
   - osx
 env: YARN_GPG=no
+
+script: yarn test:ci

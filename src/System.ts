@@ -2,7 +2,7 @@ import Instance, { Link, SerializedInstance } from './Instance.js';
 import _ from 'lodash';
 import Module from './Module.js';
 import debug from 'debug';
-import { lstatSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import { ensureDirSync } from 'fs-extra';
 import * as uuid from 'uuid';
