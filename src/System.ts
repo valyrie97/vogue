@@ -210,7 +210,6 @@ export class System {
 	}
 
 	getModule(name: ModuleName): Module {
-		console.log('GETTING MODULE', name)
 		const module = get(this.namespace, name);
 		if(module instanceof Module) return module;
 		else throw Error(`unknown module ${name}`);
