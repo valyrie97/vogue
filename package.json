@@ -50,7 +50,7 @@
     "yarn": "^1.22.10"
   },
   "dependencies": {
-    "@types/rimraf": "^3.0.0",
+    "@types/rimraf": "^3.0.1",
     "@types/tmp": "^0.2.0",
     "debug": "^4.3.2",
     "fs-extra": "^10.0.0",
