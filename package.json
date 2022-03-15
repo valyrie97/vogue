@@ -53,7 +53,7 @@
     "@types/rimraf": "^3.0.0",
     "@types/tmp": "^0.2.0",
     "debug": "^4.3.2",
-    "fs-extra": "^10.0.0",
+    "fs-extra": "^10.0.1",
     "lodash": "^4.17.21",
     "moo": "^0.5.1",
     "nearley": "^2.20.1",
